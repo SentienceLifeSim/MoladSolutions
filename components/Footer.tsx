@@ -8,6 +8,12 @@ export default function Footer() {
         </p>
 
         <div className="flex gap-6 text-sm text-white/30">
+          <a
+            href="mailto:Support@moladsolutions.com"
+            className="hover:text-white/60 transition-colors"
+          >
+            Contact
+          </a>
           <a href="#" className="hover:text-white/60 transition-colors">
             Privacy Policy
           </a>
