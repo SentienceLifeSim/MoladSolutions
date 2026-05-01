@@ -50,7 +50,7 @@ export default function AppCard({
         href={appStoreUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-auto inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/10 hover:bg-white/15 border border-white/10 hover:border-white/20 transition-all text-white text-sm font-medium"
+        className="mt-auto inline-flex items-center gap-2 px-6 py-3 rounded-full bg-green-500/15 hover:bg-green-500/25 border border-green-400/50 hover:border-green-400/80 shadow-[0_0_15px_rgba(34,197,94,0.3)] hover:shadow-[0_0_25px_rgba(34,197,94,0.5)] transition-all text-green-400 text-sm font-medium"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
