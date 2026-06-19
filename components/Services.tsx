@@ -495,6 +495,17 @@ export default function Services() {
           ))}
         </div>
 
+        {/* Engagement Terms */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="text-center text-xs leading-relaxed text-white/30 max-w-2xl mx-auto mb-10"
+        >
+          🔒 All projects require a 50% initial deployment deposit to secure your development sprint timeline. For our enterprise ecosystems, milestone-based payment schedules are available upon request during your initial strategy session.
+        </motion.p>
+
         {/* CTA */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
