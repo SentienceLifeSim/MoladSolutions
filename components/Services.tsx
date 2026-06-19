@@ -89,11 +89,11 @@ export default function Services() {
           </h3>
           <p className="text-white/50 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto mb-6">
             We practice exactly what we preach. Our flagship life-simulation app,
-            Sentience, generates{" "}
+            Sentience,{" "}
             <span className="text-white font-semibold">
-              $5,000+ in monthly revenue
+              crossed $5,000 in monthly revenue within just 2 months of launching
             </span>{" "}
-            and continues to grow.
+            and continues to scale.
           </p>
           <p className="text-white/40 text-base leading-relaxed max-w-2xl mx-auto">
             When you partner with Molad Solutions, you aren&apos;t just getting
