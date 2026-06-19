@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 const services = [
   {
@@ -100,6 +101,29 @@ export default function Services() {
             exactly what it takes to climb the App Store charts, optimize user
             retention, and drive real profit.
           </p>
+
+          {/* Revenue dashboard screenshot */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.15 }}
+            className="mt-8 mx-auto rounded-2xl overflow-hidden"
+            style={{
+              maxWidth: 560,
+              border: "1px solid rgba(139,92,246,0.4)",
+              boxShadow: "0 0 0 1px rgba(99,102,241,0.15), 0 0 30px rgba(139,92,246,0.25), 0 0 60px rgba(99,102,241,0.1)",
+              filter: "drop-shadow(0 8px 32px rgba(99,102,241,0.2))",
+            }}
+          >
+            <Image
+              src="/revenue-dashboard.png"
+              alt="Sentience monthly revenue dashboard"
+              width={1120}
+              height={630}
+              className="w-full h-auto block"
+            />
+          </motion.div>
         </motion.div>
 
         {/* Section label */}
