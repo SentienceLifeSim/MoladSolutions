@@ -166,6 +166,205 @@ export default function Services() {
           ))}
         </div>
 
+        {/* ── Core Application Packages ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="mb-8 text-center"
+        >
+          <p className="text-xs font-semibold uppercase tracking-widest text-white/30 mb-2">Pricing</p>
+          <h3 className="text-2xl sm:text-3xl font-bold text-white">Core Application Packages</h3>
+        </motion.div>
+
+        <div className="grid sm:grid-cols-3 gap-5 mb-5">
+          {[
+            {
+              tier: "Tier 1",
+              name: "The 30-Day Sprint",
+              use: "MVPs, simple content apps, directory apps, or basic utility tools with minimal backend complexity.",
+              timeline: "15–30 Days",
+              price: "$3,500 – $5,000",
+              bullets: [
+                "Complete UI/UX Design & Core Functional Build",
+                "Native App Store & Google Play Submission",
+                "3 Months of Post-Launch Co-Piloting & Framework Stability",
+                "Apple Search Ads Setup + $100 Promotional Ad Credit Integration",
+              ],
+              accent: "rgba(99,102,241,0.35)",
+              accentText: "#a78bfa",
+            },
+            {
+              tier: "Tier 2",
+              name: "The Horizon Package",
+              use: "Apps requiring user accounts, simple databases, social features, or basic API integrations.",
+              timeline: "2 – 3 Months",
+              price: "$7,500 – $12,000",
+              bullets: [
+                "Advanced Database Architecture & Schema Design",
+                "Secure User Authentication & Dedicated Data Storage",
+                "Native App Store & Google Play Submission",
+                "3 Months of Premium Post-Launch Optimization & Co-Piloting",
+                "Apple Search Ads Setup + $100 Promotional Ad Credit Integration",
+              ],
+              accent: "rgba(139,92,246,0.4)",
+              accentText: "#c4b5fd",
+            },
+            {
+              tier: "Tier 3",
+              name: "The Custom Ecosystem",
+              use: "Highly complex systems, deep AI integrations, custom algorithms, or gamified mechanics.",
+              timeline: "4 – 6+ Months",
+              price: "$15,000 – $25,000+",
+              priceSub: "or $4,000–$5,000 / month retainer during build",
+              bullets: [
+                "Custom Structural Architecture & Advanced API Systems",
+                "Bespoke AI Logic Pathways & Immersive Interactive UI Loops",
+                "Deep Database Optimization & Core Scaling Safeguards",
+                "Elite Post-Launch Co-Piloting & Technical Support Priorities",
+              ],
+              accent: "rgba(167,139,250,0.45)",
+              accentText: "#e9d5ff",
+            },
+          ].map((pkg, i) => (
+            <motion.div
+              key={pkg.tier}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.55, delay: i * 0.08 }}
+              className="rounded-2xl p-6 sm:p-7 flex flex-col"
+              style={{
+                background: "rgba(255,255,255,0.03)",
+                border: "1px solid rgba(255,255,255,0.07)",
+              }}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <span
+                  className="text-xs font-bold uppercase tracking-widest px-2.5 py-1 rounded-full"
+                  style={{ background: `${pkg.accent}`, color: pkg.accentText, border: `1px solid ${pkg.accentText}40` }}
+                >
+                  {pkg.tier}
+                </span>
+                <span
+                  className="text-xs font-medium px-2.5 py-1 rounded-full"
+                  style={{ background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.4)" }}
+                >
+                  {pkg.timeline}
+                </span>
+              </div>
+
+              <h4 className="text-white font-bold text-lg mb-2">{pkg.name}</h4>
+              <p className="text-white/35 text-xs leading-relaxed mb-5">{pkg.use}</p>
+
+              <div className="mb-5">
+                <div className="text-white font-bold text-xl" style={{ color: pkg.accentText }}>{pkg.price}</div>
+                {pkg.priceSub && (
+                  <div className="text-white/30 text-xs mt-1">{pkg.priceSub}</div>
+                )}
+              </div>
+
+              <ul className="flex flex-col gap-2.5 mt-auto">
+                {pkg.bullets.map((b) => (
+                  <li key={b} className="flex items-start gap-2.5">
+                    <svg className="flex-shrink-0 mt-0.5" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={pkg.accentText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.7 }}>
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    <span className="text-white/50 text-xs leading-relaxed">{b}</span>
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* ── Post-Launch Maintenance Retainers ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="mt-16 mb-8"
+        >
+          <p className="text-xs font-semibold uppercase tracking-widest text-white/30 mb-2 text-center">For Existing Clients</p>
+          <h3 className="text-2xl sm:text-3xl font-bold text-white text-center mb-4">
+            Post-Launch Maintenance Packages
+          </h3>
+          <p className="text-white/40 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto text-center">
+            Our introductory 90 days of co-piloting ensures a flawless rollout. Afterward, easily transition into a monthly retainer to keep your platform optimized, updated, and completely bug-free as operating systems evolve.
+          </p>
+        </motion.div>
+
+        <div className="grid sm:grid-cols-2 gap-5 mb-16">
+          {[
+            {
+              label: "Package A",
+              name: "The Baseline Anchor",
+              focus: "Keep the Lights On",
+              price: "$299 / month",
+              bullets: [
+                "Monthly iOS & Android OS Compatibility Audits",
+                "Critical Frame Fixes & Proactive Bug Resolution",
+                "Up to 2 Hours of Dedicated Minor Design or Copy Tweaks Monthly",
+              ],
+              accent: "rgba(99,102,241,0.35)",
+              accentText: "#a78bfa",
+            },
+            {
+              label: "Package B",
+              name: "The Growth Retainer",
+              focus: "Active Iteration",
+              price: "$799 – $1,200 / month",
+              bullets: [
+                "Priority Developer Support Response Pathways",
+                "Core Framework Upgrades & Speed Optimization Monitoring",
+                "Up to 8–10 Hours of New Feature Implementation & UI Expansion Monthly",
+              ],
+              accent: "rgba(139,92,246,0.4)",
+              accentText: "#c4b5fd",
+            },
+          ].map((pkg, i) => (
+            <motion.div
+              key={pkg.label}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.55, delay: i * 0.08 }}
+              className="rounded-2xl p-6 sm:p-7 flex flex-col"
+              style={{
+                background: "rgba(255,255,255,0.03)",
+                border: "1px solid rgba(255,255,255,0.07)",
+              }}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <span
+                  className="text-xs font-bold uppercase tracking-widest px-2.5 py-1 rounded-full"
+                  style={{ background: pkg.accent, color: pkg.accentText, border: `1px solid ${pkg.accentText}40` }}
+                >
+                  {pkg.label}
+                </span>
+                <span className="text-xs text-white/30 font-medium">{pkg.focus}</span>
+              </div>
+
+              <h4 className="text-white font-bold text-lg mb-4">{pkg.name}</h4>
+
+              <div className="text-xl font-bold mb-5" style={{ color: pkg.accentText }}>{pkg.price}</div>
+
+              <ul className="flex flex-col gap-2.5 mt-auto">
+                {pkg.bullets.map((b) => (
+                  <li key={b} className="flex items-start gap-2.5">
+                    <svg className="flex-shrink-0 mt-0.5" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={pkg.accentText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.7 }}>
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    <span className="text-white/50 text-xs leading-relaxed">{b}</span>
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          ))}
+        </div>
+
         {/* CTA */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
