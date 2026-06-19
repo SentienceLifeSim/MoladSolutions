@@ -279,6 +279,136 @@ export default function Services() {
           ))}
         </div>
 
+        {/* ── Web Development & Launch Ecosystems ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="mt-16 mb-8 text-center"
+        >
+          <p className="text-xs font-semibold uppercase tracking-widest text-white/30 mb-2">Web Services</p>
+          <h3 className="text-2xl sm:text-3xl font-bold text-white mb-4">
+            Web Development &amp; Launch Ecosystems
+          </h3>
+          <p className="text-white/40 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto">
+            Elevate your brand with high-converting web architectures designed to drive traffic, convert users, and complement your mobile app ecosystem flawlessly.
+          </p>
+        </motion.div>
+
+        <div className="grid sm:grid-cols-2 gap-5 mb-10">
+          {[
+            {
+              label: "Web Add-On",
+              name: "The App Launch Landing Page",
+              use: "The ultimate conversion engine. A high-converting, single-page marketing site built specifically to drive pre-registrations, showcase app features, and capture emails before and during your launch.",
+              timeline: "7–14 Days",
+              price: "$500 – $1,500",
+              bullets: [
+                "Custom Premium Design Matching Your App's UI/UX Theme",
+                "Optimized Core Web Vitals for Lightning-Fast Load Speeds",
+                "Clean Lead Capture Form Integration & Email Marketing System Hookup",
+                "Fully Responsive Layout (Flawless on Mobile, Desktop, & Tablet)",
+              ],
+              accent: "rgba(56,189,248,0.3)",
+              accentText: "#7dd3fc",
+            },
+            {
+              label: "Full Website",
+              name: "The Complete Brand Ecosystem",
+              use: "For companies and platforms needing a complete multi-page web presence. Perfect for SaaS platforms, comprehensive business directories, or complex corporate sites.",
+              timeline: "21–30 Days",
+              price: "$2,500 – $6,000",
+              bullets: [
+                "Multi-Page Architecture (Home, Features, Pricing, About, Contact, Blog)",
+                "Custom CMS Setup for Easy Article & Product Publishing",
+                "Integrated SEO Framework Setup for Fast Organic Google Rankings",
+                "Full Web Analytics & Traffic Tracking Dashboard Integration",
+              ],
+              accent: "rgba(34,211,238,0.3)",
+              accentText: "#67e8f9",
+            },
+          ].map((pkg, i) => (
+            <motion.div
+              key={pkg.label}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.55, delay: i * 0.08 }}
+              className="rounded-2xl p-6 sm:p-7 flex flex-col"
+              style={{
+                background: "rgba(255,255,255,0.03)",
+                border: "1px solid rgba(255,255,255,0.07)",
+              }}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <span
+                  className="text-xs font-bold uppercase tracking-widest px-2.5 py-1 rounded-full"
+                  style={{ background: pkg.accent, color: pkg.accentText, border: `1px solid ${pkg.accentText}40` }}
+                >
+                  {pkg.label}
+                </span>
+                <span
+                  className="text-xs font-medium px-2.5 py-1 rounded-full"
+                  style={{ background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.4)" }}
+                >
+                  {pkg.timeline}
+                </span>
+              </div>
+
+              <h4 className="text-white font-bold text-lg mb-2">{pkg.name}</h4>
+              <p className="text-white/35 text-xs leading-relaxed mb-5">{pkg.use}</p>
+
+              <div className="text-xl font-bold mb-5" style={{ color: pkg.accentText }}>{pkg.price}</div>
+
+              <ul className="flex flex-col gap-2.5 mt-auto">
+                {pkg.bullets.map((b) => (
+                  <li key={b} className="flex items-start gap-2.5">
+                    <svg className="flex-shrink-0 mt-0.5" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={pkg.accentText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.7 }}>
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    <span className="text-white/50 text-xs leading-relaxed">{b}</span>
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* ── Ecosystem Bundle Offer Banner ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="mb-16 rounded-2xl p-7 sm:p-9"
+          style={{
+            background: "linear-gradient(135deg, rgba(56,189,248,0.08) 0%, rgba(99,102,241,0.12) 50%, rgba(139,92,246,0.08) 100%)",
+            border: "1px solid rgba(56,189,248,0.2)",
+            boxShadow: "0 0 40px rgba(56,189,248,0.06), 0 0 80px rgba(99,102,241,0.04)",
+          }}
+        >
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
+            <div
+              className="flex-shrink-0 text-2xl w-12 h-12 flex items-center justify-center rounded-xl"
+              style={{ background: "rgba(56,189,248,0.12)", border: "1px solid rgba(56,189,248,0.2)" }}
+            >
+              🚀
+            </div>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "#7dd3fc" }}>
+                Bundle Offer
+              </p>
+              <p className="text-white/70 text-sm sm:text-base leading-relaxed">
+                <span className="text-white font-bold">The Complete Founder Ecosystem Bundle:</span>{" "}
+                Code your app and build your web empire at the same time. Lock in any Core Application Package alongside a Website Package and receive{" "}
+                <span className="font-bold" style={{ color: "#7dd3fc" }}>15% off the total build price</span>, plus an extended{" "}
+                <span className="font-bold" style={{ color: "#c4b5fd" }}>6 months of complimentary co-piloting</span>.
+              </p>
+            </div>
+          </div>
+        </motion.div>
+
         {/* ── Post-Launch Maintenance Retainers ── */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
