@@ -31,31 +31,6 @@ export default function Hero() {
           Crafting real experiences through technology
         </motion.p>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 1.2 }}
-          className="mt-16"
-        >
-          <a
-            href="#apps"
-            className="inline-block animate-bounce text-white/30 hover:text-white/60 transition-colors"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M12 5v14M5 12l7 7 7-7" />
-            </svg>
-          </a>
-        </motion.div>
       </div>
     </section>
   );
