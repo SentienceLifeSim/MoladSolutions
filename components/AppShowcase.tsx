@@ -19,6 +19,7 @@ const apps = [
     icon: "/sueno-icon.png",
     appStoreUrl: "https://apps.apple.com/us/app/sueno/id6760856713",
     gradient: "cyan-500",
+    comingSoon: true,
   },
 ];
 
