@@ -25,15 +25,7 @@ export default async function StatsPage({
   const secret = process.env.STATS_SECRET;
 
   if (!secret || key !== secret) {
-    return (
-      <main className="min-h-screen flex items-center justify-center bg-black text-white">
-        <div className="text-center space-y-3 font-mono text-sm">
-          <p className="text-red-400">Auth failed</p>
-          <p className="text-white/40">secret set: {secret ? "yes" : "NO — env var missing"}</p>
-          <p className="text-white/40">key received: &quot;{key ?? "(none)"}&quot;</p>
-        </div>
-      </main>
-    );
+    notFound();
   }
 
   const total = await getViewCount();
