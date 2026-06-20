@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import TopBanner from "@/components/TopBanner";
+import ViewTracker from "@/components/ViewTracker";
 
 const inter = Inter({
   variable: "--font-geist-sans",
@@ -28,6 +29,7 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         <TopBanner />
+        <ViewTracker />
         {children}
       </body>
     </html>
