@@ -96,7 +96,7 @@ export default function Services() {
             and continues to scale.
           </p>
           <p className="text-white/40 text-base leading-relaxed max-w-2xl mx-auto">
-            When you partner with Molad Solutions, you aren&apos;t just getting
+            When you partner with Sublime Labs, you aren&apos;t just getting
             programmers. You are getting insights from active developers who know
             exactly what it takes to climb the App Store charts, optimize user
             retention, and drive real profit.

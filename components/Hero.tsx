@@ -19,7 +19,7 @@ export default function Hero() {
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="text-5xl sm:text-7xl md:text-8xl font-bold tracking-tight gradient-text pb-2"
         >
-          Molad Solutions
+          Sublime Labs
         </motion.h1>
 
         <motion.p

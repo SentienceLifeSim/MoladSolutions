@@ -23,9 +23,10 @@ export default function About() {
           transition={{ duration: 0.6, delay: 0.15 }}
           className="text-white/50 text-lg sm:text-xl leading-relaxed"
         >
-          We build apps that create meaningful, immersive experiences. At Molad
-          Solutions, we believe technology should bring people closer to stories
-          that matter, characters that feel real, and worlds worth exploring.
+          We build apps that create meaningful, immersive experiences. At
+          Sublime Labs, we believe technology should bring people closer to
+          stories that matter, characters that feel real, and worlds worth
+          exploring.
         </motion.p>
       </div>
     </section>

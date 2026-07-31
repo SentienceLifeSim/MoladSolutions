@@ -10,11 +10,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Molad Solutions | Crafting Real Experiences Through Technology",
+  title: "Sublime Labs | Crafting Real Experiences Through Technology",
   description:
-    "Molad Solutions builds immersive apps that create meaningful experiences. Creators of Sentience and Sueno.",
+    "Sublime Labs builds immersive apps that create meaningful experiences. Creators of Sentience and Sueno.",
   openGraph: {
-    title: "Molad Solutions",
+    title: "Sublime Labs",
     description: "Crafting real experiences through technology",
     type: "website",
   },

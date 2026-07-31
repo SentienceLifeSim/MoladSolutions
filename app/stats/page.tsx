@@ -53,7 +53,7 @@ export default async function StatsPage({
     <main className="min-h-screen flex items-center justify-center bg-black text-white px-6">
       <div className="w-full max-w-xs space-y-10">
         <p className="text-center text-white/25 text-xs tracking-[0.35em] uppercase font-mono">
-          Molad Solutions · Analytics
+          Sublime Labs · Analytics
         </p>
 
         {/* Total */}

@@ -4,7 +4,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Services | Molad Solutions",
+  title: "Services | Sublime Labs",
   description:
     "Turn your app idea into a profitable digital product. Custom UI/UX design, App Store deployment, 90 days of post-launch support, and ASO growth strategy.",
 };
@@ -30,7 +30,7 @@ export default function ServicesPage() {
           >
             <path d="M19 12H5M12 5l-7 7 7 7" />
           </svg>
-          Back to Molad Solutions
+          Back to Sublime Labs
         </Link>
       </div>
 

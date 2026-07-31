@@ -3,7 +3,7 @@ export default function Footer() {
     <footer className="border-t border-white/5 py-10 px-6 mt-auto">
       <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
         <p className="text-white/30 text-sm">
-          &copy; {new Date().getFullYear()} Molad Solutions. All rights
+          &copy; {new Date().getFullYear()} Sublime Labs. All rights
           reserved.
         </p>
 
