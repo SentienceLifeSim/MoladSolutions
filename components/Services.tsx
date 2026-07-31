@@ -520,7 +520,7 @@ export default function Services() {
             into a live product.
           </p>
           <a
-            href="mailto:Support@moladsolutions.com?subject=App Strategy Session Request"
+            href="mailto:support@sublimelabs.tech?subject=App Strategy Session Request"
             className="inline-flex items-center gap-3 px-8 py-4 rounded-full text-base font-semibold transition-all duration-300"
             style={{
               background:

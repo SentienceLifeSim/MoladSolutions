@@ -9,7 +9,7 @@ export default function Footer() {
 
         <div className="flex gap-6 text-sm text-white/30">
           <a
-            href="mailto:Support@moladsolutions.com"
+            href="mailto:support@sublimelabs.tech"
             className="hover:text-white/60 transition-colors"
           >
             Contact
