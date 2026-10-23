@@ -1,0 +1,33 @@
+"use client";
+import type { Bug } from "@/lib/testers/model";
+import { PLATFORM_LABEL } from "@/lib/testers/model";
+import { ago } from "./api";
+import { Icon, StatusPill, Sev } from "./ui";
+
+export default function BugRow({ b, onOpen }: { b: Bug; onOpen: (id: number) => void }) {
+  const first = b.shots[0], vid = first?.type.startsWith("video");
+  return (
+    <button className="th-bug" onClick={() => onOpen(b.id)}>
+      <span className="th-thumb">
+        {first ? (vid ? <video src={first.url} muted playsInline preload="metadata" /> : <img src={first.url} alt="" loading="lazy" />) : <Icon n="bug" />}
+        {b.shots.length > 1 && <em>+{b.shots.length - 1}</em>}
+      </span>
+      <span className="bd">
+        <span className="tp">
+          <span className="tt"><span>#{b.id}</span>{b.title}</span>
+          <StatusPill s={b.status} />
+        </span>
+        <span className="th-meta">
+          <Sev s={b.severity} /><i className="dot" />{PLATFORM_LABEL[b.platform]}{b.area && <><i className="dot" />{b.area}</>}
+        </span>
+        <span className="th-meta">
+          {b.mine ? <span className="th-mine">Yours</span> : <span>{b.reporter_name ?? "A tester"}</span>}<i className="dot" />{ago(b.created_at)}
+          <span className="th-counts" style={{ marginLeft: "auto" }}>
+            <span className={b.iMetoo ? "on" : ""}><Icon n="hand" />{b.metoo}</span>
+            <span><Icon n="chat" />{b.comments}</span>
+          </span>
+        </span>
+      </span>
+    </button>
+  );
+}

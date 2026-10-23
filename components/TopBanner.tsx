@@ -1,8 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function TopBanner() {
+  // The tester hub is its own space; the services banner stays on the public pages.
+  const path = usePathname();
+  if (path?.startsWith("/testers")) return null;
   return (
     <>
       <style>{`
