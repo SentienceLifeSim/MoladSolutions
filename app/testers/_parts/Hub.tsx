@@ -10,6 +10,8 @@ import Builds from "./Builds";
 import Guide from "./Guide";
 import Report from "./Report";
 import Detail from "./Detail";
+import Assist from "./Assist";
+import type { Prefill } from "./Report";
 
 const TABS = [
   { key: "home", label: "Home", icon: "home" }, { key: "bugs", label: "Bugs", icon: "bug" },
@@ -21,7 +23,7 @@ export default function Hub() {
   const [me, setMe] = useState<Me | null | undefined>(undefined);
   const [tab, setTabState] = useState<Tab>("home");
   const [bugs, setBugs] = useState<Bug[] | null>(null), [posts, setPosts] = useState<Post[] | null>(null);
-  const [open, setOpen] = useState<number | null>(null), [reporting, setReporting] = useState(false);
+  const [open, setOpen] = useState<number | null>(null), [reporting, setReporting] = useState(false), [prefill, setPrefill] = useState<Prefill | null>(null);
   const [filter, setFilter] = useState<BoardFilter>({ g: "all", mine: false });
   const [menu, setMenu] = useState(false), [msg, setMsg] = useState("");
   const msgT = useRef<number | undefined>(undefined);
@@ -107,8 +109,9 @@ export default function Hub() {
       </main>
       <nav className="th-bar">{TABS.map((t) => <button key={t.key} aria-current={tab === t.key ? "page" : undefined} onClick={() => setTab(t.key)}><Icon n={t.icon} />{t.label}</button>)}</nav>
 
-      {reporting && <Report bugs={bugs ?? []} onClose={() => setReporting(false)} onOpen={openBug} onMetoo={metoo}
-        onDone={async (id) => { setReporting(false); toast("Thank you. Your report is on the board."); await refresh(); setOpen(id); }} />}
+      <Assist me={me} bugs={bugs} onDraft={(p) => { setOpen(null); setPrefill(p); setReporting(true); }} onMetoo={metoo} onChanged={refresh} toast={toast} />
+      {reporting && <Report bugs={bugs ?? []} prefill={prefill} onClose={() => { setReporting(false); setPrefill(null); }} onOpen={openBug} onMetoo={metoo}
+        onDone={async (id) => { setReporting(false); setPrefill(null); toast("Thank you. Your report is on the board."); await refresh(); setOpen(id); }} />}
       {current && <Detail bug={current} me={me} onClose={closeBug} onChange={update} onOpen={openBug} onMetoo={metoo} toast={toast}
         onDeleted={(id) => { setBugs((all) => all?.filter((b) => b.id !== id) ?? all); closeBug(); toast("Deleted"); }} />}
       {msg && <div className="th-toast" role="status">{msg}</div>}

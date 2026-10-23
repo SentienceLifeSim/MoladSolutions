@@ -5,6 +5,7 @@ import { call, guessDevice, words } from "./api";
 import { Icon, Sheet, StatusPill, SEVERITY_COLOR, cssVar } from "./ui";
 
 type Up = { key: string; preview: string; video: boolean; state: "up" | "done" | "err"; shot?: Shot; msg?: string };
+export type Prefill = Partial<{ title: string; happened: string; steps: string; expected: string; severity: Severity; area: string; platform: Platform; device: string }>;
 type Draft = { title: string; happened: string; steps: string; expected: string; platform: Platform; device: string; version: string; severity: Severity; area: string };
 const DRAFT = "th_draft", DEVICE = "th_device";
 const ALLOWED = ["image/jpeg", "image/png", "image/webp", "video/mp4", "video/quicktime", "video/webm"];
@@ -24,12 +25,14 @@ async function normalize(f: File): Promise<File> {
   return new File([blob], f.name.replace(/\.\w+$/, "") + ".jpg", { type: "image/jpeg" });
 }
 
-export default function Report({ bugs, onClose, onDone, onOpen, onMetoo }: {
-  bugs: Bug[]; onClose: () => void; onDone: (id: number) => void; onOpen: (id: number) => void; onMetoo: (b: Bug) => void;
+export default function Report({ bugs, onClose, onDone, onOpen, onMetoo, prefill }: {
+  bugs: Bug[]; onClose: () => void; onDone: (id: number) => void; onOpen: (id: number) => void; onMetoo: (b: Bug) => void; prefill?: Prefill | null;
 }) {
   const [d, setD] = useState<Draft>(() => {
     const g = guessDevice(), dev = load<{ platform: Platform; device: string; version: string }>(DEVICE);
-    return { title: "", happened: "", steps: "", expected: "", severity: "minor", area: "", platform: dev?.platform ?? g.platform, device: dev?.device ?? g.device, version: dev?.version ?? "", ...load<Partial<Draft>>(DRAFT) };
+    return { title: "", happened: "", steps: "", expected: "", severity: "minor", area: "", platform: dev?.platform ?? g.platform, device: dev?.device ?? g.device, version: dev?.version ?? "", ...load<Partial<Draft>>(DRAFT),
+      // The helper's draft wins over a half finished one; empty fields never wipe what was typed.
+      ...Object.fromEntries(Object.entries(prefill ?? {}).filter(([, v]) => typeof v === "string" && v.trim())) };
   });
   const [ups, setUps] = useState<Up[]>([]), [over, setOver] = useState(false), [busy, setBusy] = useState(false), [err, setErr] = useState("");
   const fileRef = useRef<HTMLInputElement>(null), hp = useRef<HTMLInputElement>(null);

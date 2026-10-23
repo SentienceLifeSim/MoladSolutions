@@ -309,3 +309,21 @@ select.th-in option{background:#14121f}
 .th-expect{border-color:rgba(244,114,182,.35);background:linear-gradient(135deg,rgba(244,114,182,.08),rgba(168,85,247,.06))}
 .th-expect .rule{display:flex;align-items:baseline;gap:10px;font-size:15px;color:var(--tx);font-weight:600}
 .th-expect .rule b{font-size:30px;font-weight:700;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+/* Helper */
+.th-astab{position:fixed;z-index:26;right:0;top:44%;width:30px;height:54px;display:grid;place-items:center;border-radius:16px 0 0 16px;border:1px solid rgba(168,85,247,.45);border-right:0;background:rgba(18,15,32,.9);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);color:#c4b5fd;box-shadow:0 8px 24px rgba(0,0,0,.45)}
+.th-astab svg{width:17px;height:17px;margin-left:2px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linejoin:round;filter:drop-shadow(0 0 6px rgba(168,85,247,.8))}
+.th-aspanel{display:flex;flex-direction:column;height:min(80vh,680px);overflow:hidden}
+.th-aslog{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:16px 20px;display:flex;flex-direction:column;gap:10px}
+.th-am p{margin:0;font-size:15px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.th-am.u{align-self:flex-end;max-width:84%;padding:10px 14px;border-radius:18px 18px 4px 18px;background:linear-gradient(135deg,rgba(168,85,247,.28),rgba(34,211,238,.16));border:1px solid rgba(168,85,247,.4)}
+.th-am.a{align-self:flex-start;max-width:92%;padding:11px 14px;border-radius:18px 18px 18px 4px;background:var(--panel2);border:1px solid var(--line)}
+.th-asprop{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
+.th-asprop ul{margin:0;padding-left:18px;list-style:disc;display:flex;flex-direction:column;gap:5px;font-size:14px;line-height:1.45;color:var(--mut)}
+.th-asprop li::marker{color:var(--cy)}
+.th-ascompose{display:flex;align-items:flex-end;gap:8px;padding:12px 16px 16px;border-top:1px solid var(--line)}
+.th-ascompose textarea{min-height:46px;max-height:120px;border-radius:23px;padding:12px 16px;resize:none}
+.th-dots{display:flex;gap:5px;padding:4px 2px}
+.th-dots i{width:7px;height:7px;border-radius:50%;background:#c4b5fd;animation:th-dot 1.2s ease-in-out infinite}
+.th-dots i:nth-child(2){animation-delay:.15s}.th-dots i:nth-child(3){animation-delay:.3s}
+@keyframes th-dot{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
+@media (max-width:640px){.th-aspanel{height:88dvh;max-height:88dvh;overflow:hidden}}
