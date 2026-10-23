@@ -71,7 +71,7 @@ export default function Detail({ bug, me, onClose, onChange, onDeleted, onOpen, 
           })}
         </div>
       )}
-      <div className="th-blk"><h5>{bug.kind === "bug" ? "What happened" : bug.kind === "idea" ? "Suggestion" : "What they tested"}</h5><p>{bug.happened}</p></div>
+      <div className="th-blk"><h5>{bug.kind === "bug" ? "What happened" : bug.kind === "idea" ? "Improvement" : "What they tested"}</h5><p>{bug.happened}</p></div>
       {bug.steps && <div className="th-blk"><h5>How to make it happen</h5><p>{bug.steps}</p></div>}
       {bug.expected && <div className="th-blk"><h5>Expected</h5><p>{bug.expected}</p></div>}
       <dl className="th-facts" style={{ margin: 0 }}>{facts.filter(([, v]) => v).map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>

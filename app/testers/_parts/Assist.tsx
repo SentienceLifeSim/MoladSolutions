@@ -30,7 +30,7 @@ export default function Assist({ me, bugs, onDraft, onMetoo, onChanged, toast }:
   function describe(a: Action): string {
     const i = a.input;
     switch (a.name) {
-      case "draft_report": return `Open a report: ${i.title} (${SEVERITY_LABEL[i.severity as Severity] ?? "Minor"})`;
+      case "draft_report": return i.kind === "idea" ? `Open an improvement: ${i.title}` : `Open a report: ${i.title} (${SEVERITY_LABEL[i.severity as Severity] ?? "Minor"})`;
       case "me_too": return `Me too on ${name(i.id)}`;
       case "mark_duplicate": return `${name(i.id)} is the same as #${i.of}`;
       case "set_status": return `${name(i.id)}: ${STATUS_LABEL[i.status as Status] ?? i.status}`;
@@ -45,7 +45,7 @@ export default function Assist({ me, bugs, onDraft, onMetoo, onChanged, toast }:
     switch (a.name) {
       case "draft_report":
         onDraft({
-          title: String(i.title ?? ""), happened: String(i.happened ?? ""), steps: i.steps ?? "", expected: i.expected ?? "",
+          kind: i.kind === "idea" ? "idea" : "bug", title: String(i.title ?? ""), happened: String(i.happened ?? ""), steps: i.steps ?? "", expected: i.expected ?? "",
           severity: i.severity, ...(i.area ? { area: i.area } : {}), ...(i.platform ? { platform: i.platform } : {}), ...(i.device ? { device: i.device } : {}),
         });
         setOpen(false);

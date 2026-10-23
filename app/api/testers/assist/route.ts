@@ -13,7 +13,7 @@ async function board(me: { role: string; code: string; name: string }): Promise<
   ]);
   const owner = me.role === "owner";
   const line = (b: Bug & { reporter_code: string }) =>
-    `#${b.id} ${b.kind === "idea" ? "(suggestion) " : b.kind === "clear" ? "(couldn't find a bug) " : ""}${b.title} [${STATUS_LABEL[b.status as Status]}, ${b.severity}, ${b.platform}${b.area ? `, ${b.area}` : ""}, ${b.metoo} me too${b.duplicate_of ? `, same as #${b.duplicate_of}` : ""}${b.reporter_code === me.code ? ", theirs" : ""}${owner ? `, by ${b.reporter_name ?? "a tester"}, ${b.created_at.slice(0, 10)}: ${b.happened.slice(0, 160).replace(/\s+/g, " ")}` : ""}]`;
+    `#${b.id} ${b.kind === "idea" ? "(improvement) " : b.kind === "clear" ? "(couldn't find a bug) " : ""}${b.title} [${STATUS_LABEL[b.status as Status]}, ${b.severity}, ${b.platform}${b.area ? `, ${b.area}` : ""}, ${b.metoo} me too${b.duplicate_of ? `, same as #${b.duplicate_of}` : ""}${b.reporter_code === me.code ? ", theirs" : ""}${owner ? `, by ${b.reporter_name ?? "a tester"}, ${b.created_at.slice(0, 10)}: ${b.happened.slice(0, 160).replace(/\s+/g, " ")}` : ""}]`;
   const start = monthStart();
   const mine = bugs.filter((b) => b.reporter_code === me.code && new Date(b.created_at) >= start).length;
   const parts = [

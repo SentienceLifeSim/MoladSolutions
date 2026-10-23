@@ -53,7 +53,7 @@ export default function Home({ me, bugs, posts, onReport, onOpen, onBoard, onPos
         <button className="th-stat" onClick={() => onBoard("fixing")}><span>Being fixed</span><b>{n(count("fixing"))}</b><small>{count("fixing") ? "In progress now" : "None in progress"}</small></button>
         <button className="th-stat" onClick={() => onBoard("fixed")}><span>Fixed</span><b>{n(count("fixed"))}</b><small>{fixedMonth} this month</small></button>
         {owner ? (
-          <button className="th-stat" onClick={() => onBoard("all")}><span>All reports</span><b>{n(all.length)}</b><small>{all.filter((b) => b.kind === "idea").length} suggestions, {all.filter((b) => b.kind === "clear").length} check-ins</small></button>
+          <button className="th-stat" onClick={() => onBoard("all")}><span>All reports</span><b>{n(all.length)}</b><small>{all.filter((b) => b.kind === "idea").length} improvements, {all.filter((b) => b.kind === "clear").length} check-ins</small></button>
         ) : (
           <button className="th-stat" onClick={() => onBoard("all", true)}><span>Your {monthName()}</span><b>{n(monthN)}<em> / {MONTHLY_MIN}</em></b>
             <div className="th-meter"><i style={{ width: `${Math.min(100, (monthN / MONTHLY_MIN) * 100)}%` }} /></div>
@@ -65,7 +65,7 @@ export default function Home({ me, bugs, posts, onReport, onOpen, onBoard, onPos
 
       <div className="th-sec th-grid2">
         <section style={{ minWidth: 0 }}>
-          <div className="th-sechead"><div><h2 className="th-h2">{owner ? "Waiting on you" : "Recent reports"}</h2><p>{owner ? "New reports that need a status." : "Bugs and suggestions from every tester."}</p></div>
+          <div className="th-sechead"><div><h2 className="th-h2">{owner ? "Waiting on you" : "Recent reports"}</h2><p>{owner ? "New reports that need a status." : "Bugs and improvements from every tester."}</p></div>
             <button className="th-link" onClick={() => onBoard("all")}>View all</button></div>
           {bugs === null ? <div className="th-skel" /> : recent.length === 0 ? (
             <div className="th-empty">{owner ? "All caught up." : "Nothing reported yet. Be the first."}</div>

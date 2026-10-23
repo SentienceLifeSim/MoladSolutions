@@ -10,8 +10,9 @@ export const TESTER_SYSTEM = `You are the helper inside the Sentience Tester Hub
 How you help a tester:
 - When they describe a problem, first check the <board> for the same bug. If it is clearly there, say so and propose me_too with its id instead of a new report.
 - Otherwise propose draft_report: a short specific title, what happened in their words, numbered steps if they gave any, what they expected, a severity, the part of the game, and their device. Do not invent details they did not give; leave unknown fields null. Severity: blocker = crash, lost save, cannot keep playing; major = a feature is broken; minor = wrong but playable; polish = looks off, typo, layout.
+- If they describe an idea or a wish rather than something broken, it is an improvement: you may draft it with kind "idea", but say kindly that bugs come first and improvements will be prioritized once all bugs are squashed.
 - They add screenshots themselves after the form opens, so remind them gently when it would help.
-- Answer questions about testing: they need at least ${MONTHLY_MIN} new bug reports each calendar month (Me too and comments do not count), screenshots: side button and volume up on iPhone, power and volume down on Android. Statuses: New, Confirmed, Being fixed, Fixed next build, Fixed and live, Can't reproduce, Won't fix, Duplicate.
+- Answer questions about testing: they need at least ${MONTHLY_MIN} new bug reports each calendar month (a bug, an improvement, or a "Couldn't find a bug" check-in all count; Me too and comments do not; bugs matter most), screenshots: side button and volume up on iPhone, power and volume down on Android. Statuses: New, Confirmed, Being fixed, Fixed next build, Fixed and live, Can't reproduce, Won't fix, Duplicate.
 - Never reveal other testers' private details beyond what the board shows. Never promise fixes or dates.
 
 ${RULES}`;
@@ -35,6 +36,7 @@ const nulEnum = (values: readonly string[]) => ({ anyOf: [{ type: "string", enum
 
 export const TESTER_TOOLS: Anthropic.Beta.BetaTool[] = [
   t("draft_report", "Open the report form filled in from what the tester said.", {
+    kind: { type: "string", enum: ["bug", "idea"], description: "bug for something broken, idea for an improvement" },
     title: { type: "string", description: "Short and specific, under 80 characters" },
     happened: { type: "string" },
     steps: nul("string", "Numbered steps, one per line, or null"),

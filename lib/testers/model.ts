@@ -5,10 +5,10 @@ export const STATUS_LABEL: Record<Status, string> = {
   new: "New", confirmed: "Confirmed", fixing: "Being fixed", fixed: "Fixed, next build",
   live: "Fixed and live", cant: "Can't reproduce", wont: "Won't fix", dup: "Duplicate",
 };
-// A report is a bug, a suggestion, or a "couldn't find a bug" check-in. All three count toward the month.
+// A report is a bug, an improvement, or a "couldn't find a bug" check-in. All three count toward the month.
 export const KINDS = ["bug", "idea", "clear"] as const;
 export type Kind = (typeof KINDS)[number];
-export const KIND_LABEL: Record<Kind, string> = { bug: "Bug", idea: "Suggestion", clear: "Couldn't find a bug" };
+export const KIND_LABEL: Record<Kind, string> = { bug: "Bug", idea: "Improvement", clear: "Couldn't find a bug" };
 export const SEVERITIES = ["blocker", "major", "minor", "polish"] as const;
 export type Severity = (typeof SEVERITIES)[number];
 export const SEVERITY_LABEL: Record<Severity, string> = { blocker: "Game breaking", major: "Major", minor: "Minor", polish: "Cosmetic" };

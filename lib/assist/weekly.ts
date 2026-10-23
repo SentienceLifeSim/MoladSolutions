@@ -62,7 +62,7 @@ export async function buildWeekly(now = Date.now()): Promise<Weekly> {
   const lines = [
     read.summary || `${fresh.length} new report${fresh.length === 1 ? "" : "s"} this week, ${fixed.length} fixed.`,
     "",
-    `This week: ${fresh.length} new (${ideas} suggestion${ideas === 1 ? "" : "s"}, ${clears} "couldn't find a bug" check-in${clears === 1 ? "" : "s"}) from ${((n) => `${n} tester${n === 1 ? "" : "s"}`)(new Set(fresh.map((b) => b.reporter_code)).size)}, ${fixed.length} fixed, ${open.length} still open.`,
+    `This week: ${fresh.length} new (${ideas} improvement${ideas === 1 ? "" : "s"}, ${clears} "couldn't find a bug" check-in${clears === 1 ? "" : "s"}) from ${((n) => `${n} tester${n === 1 ? "" : "s"}`)(new Set(fresh.map((b) => b.reporter_code)).size)}, ${fixed.length} fixed, ${open.length} still open.`,
     "",
     "Top bugs",
     ...(top.length ? top.map((b) => `#${b.id} ${b.title} (${SEVERITY_LABEL[b.severity]}, ${b.metoo} me too, ${STATUS_LABEL[b.status]})`) : ["Nothing open."]),

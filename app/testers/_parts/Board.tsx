@@ -45,7 +45,7 @@ export default function Board({ bugs, filter, setFilter, onOpen, onReport }: {
         </div>
         <div className="th-chips">
           {(["all", "bug", "idea", "clear"] as const).map((k) => (
-            <button key={k} className="th-chip" aria-pressed={kind === k} onClick={() => setKind(k)}>{k === "all" ? "Bugs and suggestions" : k === "bug" ? "Bugs" : k === "idea" ? "Suggestions" : KIND_LABEL.clear}</button>
+            <button key={k} className="th-chip" aria-pressed={kind === k} onClick={() => setKind(k)}>{k === "all" ? "Bugs and improvements" : k === "bug" ? "Bugs" : k === "idea" ? "Improvements" : KIND_LABEL.clear}</button>
           ))}
         </div>
         <div className="th-chips">

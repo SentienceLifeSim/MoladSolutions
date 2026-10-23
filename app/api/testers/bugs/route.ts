@@ -31,7 +31,7 @@ export async function POST(req: Request) {
   const happened = text(b.happened, 4000);
   let title = text(b.title, 140);
   if (kind === "clear" && title.length < 4) title = "Played and couldn't find a bug";
-  if (title.length < 4) return json({ error: kind === "idea" ? "Give your suggestion a short title." : "Give the bug a short title." }, 400);
+  if (title.length < 4) return json({ error: kind === "idea" ? "Give your improvement a short title." : "Give the bug a short title." }, 400);
   if (happened.length < 4) return json({ error: kind === "clear" ? "Tell us what you played and tested." : kind === "idea" ? "Tell us your idea." : "Tell us what happened." }, 400);
   const platform = PLATFORMS.includes(b.platform as never) ? (b.platform as string) : "ios";
   const severity = kind === "bug" && SEVERITIES.includes(b.severity as never) ? (b.severity as string) : kind === "bug" ? "minor" : "polish";
@@ -74,7 +74,7 @@ async function notifyOwner(id: number, r: { title: string; happened: string; pla
         to: ["support@sublimelabs.tech"],
         subject: `[Tester bug #${id}] ${r.kind === "bug" ? SEVERITY_LABEL[r.severity as keyof typeof SEVERITY_LABEL] : KIND_LABEL[r.kind]}: ${r.title}`,
         text: [
-          `${r.name} sent ${r.kind === "bug" ? "a bug" : r.kind === "idea" ? "a suggestion" : "a check-in (couldn't find a bug)"} on ${PLATFORM_LABEL[r.platform as keyof typeof PLATFORM_LABEL]}${r.area ? `, in ${r.area}` : ""}.`,
+          `${r.name} sent ${r.kind === "bug" ? "a bug" : r.kind === "idea" ? "an improvement" : "a check-in (couldn't find a bug)"} on ${PLATFORM_LABEL[r.platform as keyof typeof PLATFORM_LABEL]}${r.area ? `, in ${r.area}` : ""}.`,
           "", r.happened, "", `Screenshots: ${r.shots}`, "", `https://sublimelabs.tech/testers?bug=${id}`,
         ].join("\n"),
       }),

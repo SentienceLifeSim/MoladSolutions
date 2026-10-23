@@ -24,7 +24,8 @@ export default function Guide() {
           <h3 className="th-h3">What we expect from testers</h3>
           <div className="rule"><b>{MONTHLY_MIN}</b>reports every month</div>
           <ul>
-            <li>Send at least <strong>{MONTHLY_MIN} reports each calendar month</strong>. A report can be a <strong>bug</strong>, a <strong>suggestion</strong>, or a <strong>Couldn&apos;t find a bug</strong> check-in that says what you played and tested. Your Home page shows how many you have so far.</li>
+            <li>Send at least <strong>{MONTHLY_MIN} reports each calendar month</strong>. A report can be a <strong>bug</strong>, an <strong>improvement</strong>, or a <strong>Couldn&apos;t find a bug</strong> check-in that says what you played and tested. Your Home page shows how many you have so far.</li>
+            <li><strong>Bugs come first.</strong> Finding bugs is the most important part of testing, so please hunt for them before sending improvements. Improvements will be prioritized once all bugs are squashed.</li>
             <li>Only your own new reports count. Me too and comments are welcome, but they don&apos;t count toward your number.</li>
             <li>Testers who send fewer than {MONTHLY_MIN} reports in a month will be removed from the program, and their tester access will end.</li>
           </ul>

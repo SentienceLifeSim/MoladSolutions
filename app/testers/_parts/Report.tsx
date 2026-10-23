@@ -92,7 +92,7 @@ export default function Report({ bugs, onClose, onDone, onOpen, onMetoo, prefill
   }
 
   return (
-    <Sheet title={bug ? "Report a bug" : clear ? "Couldn't find a bug" : "Send a suggestion"} onClose={onClose} foot={<>
+    <Sheet title={bug ? "Report a bug" : clear ? "Couldn't find a bug" : "Send an improvement"} onClose={onClose} foot={<>
       <span className="msg">{err || (uploading ? "Uploading..." : "")}</span>
       <button className="th-btn gh sm" onClick={onClose}>Cancel</button>
       <button className="th-btn pri sm" disabled={!ready} onClick={send}>{busy ? "Sending..." : "Send report"}</button>
@@ -105,7 +105,7 @@ export default function Report({ bugs, onClose, onDone, onOpen, onMetoo, prefill
       <div className="th-f">
         <label htmlFor="r-title">{clear ? "What did you play?" : "Title"}{clear && <small>optional</small>}</label>
         <input id="r-title" className="th-in" value={d.title} onChange={(e) => set({ title: e.target.value })} maxLength={140}
-          placeholder={bug ? "Short and specific, like Wedding popup shows twice" : clear ? "Like A full life as a royal, birth to 80" : "Your idea in a few words"} autoFocus />
+          placeholder={bug ? "Short and specific, like Wedding popup shows twice" : clear ? "Like A full life as a royal, birth to 80" : "Your improvement in a few words"} autoFocus />
       </div>
       {bug && dupes.length > 0 && (
         <div className="th-dupes">
@@ -120,7 +120,7 @@ export default function Report({ bugs, onClose, onDone, onOpen, onMetoo, prefill
         </div>
       )}
       <div className="th-f">
-        <label htmlFor="r-what">{bug ? "What happened" : clear ? "What you tested" : "Your suggestion"}</label>
+        <label htmlFor="r-what">{bug ? "What happened" : clear ? "What you tested" : "Your improvement"}</label>
         <textarea id="r-what" className="th-in" rows={3} value={d.happened} onChange={(e) => set({ happened: e.target.value })}
           placeholder={bug ? "Tell us what you saw." : clear ? "Which careers, packs, events or screens did you try, and for how long?" : "What would make the game better, and why?"} />
       </div>
