@@ -47,7 +47,7 @@ export default function Guide() {
             <li>Scroll to <strong>Have an access code?</strong> and tap <strong>Redeem Access Code</strong>.</li>
             <li>Enter your personal code. Everything opens up.</li>
           </ol>
-          <p><strong>Still unlocked with the old shared tester code?</strong> Switch to your own: open <strong>Settings</strong>, tap <strong>Reset Unlocks (Tester)</strong>, then redeem your personal code using the steps above.</p>
+          <p><strong>Still unlocked with the old shared tester code?</strong> Switch to your own: open <strong>Settings</strong>, tap <strong>Reset Unlocks (Tester)</strong>, then redeem your personal code using the steps above. The old shared code will be revoked soon, so please switch now to keep your access.</p>
           <p>Your code belongs to one account, so please keep it to yourself.</p>
         </div>
         <div className="th-card th-gc" style={cssVar("#f472b6")}>
