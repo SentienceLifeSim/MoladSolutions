@@ -28,3 +28,12 @@ export type Bug = {
 };
 export type Comment = { id: number; name: string | null; owner: boolean; body: string; created_at: string; mine?: boolean };
 export type Post = { id: number; kind: "focus" | "build"; title: string; body: string | null; version: string | null; created_at: string };
+
+// Owner rule (2026-10-23): at least this many new reports per calendar month (UTC), Me too doesn't count.
+export const MONTHLY_MIN = 2;
+export const monthStart = (d = new Date()) => new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1));
+export const monthName = (d = new Date()) => d.toLocaleDateString("en-US", { month: "long", timeZone: "UTC" });
+export const monthEnd = (d = new Date()) => new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0));
+export type RosterRow = { name: string; month: number; last: number | null };
+// The hub opened in October 2026; months before it are never counted against anyone.
+export const HUB_OPENED = Date.UTC(2026, 9, 1);

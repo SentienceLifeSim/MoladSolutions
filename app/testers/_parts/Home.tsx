@@ -6,6 +6,7 @@ import { Icon, cssVar } from "./ui";
 import BugRow from "./BugRow";
 import Composer from "./Composer";
 import Notes from "./Notes";
+import { Roster, YourMonth } from "./Month";
 import type { Me } from "./Gate";
 
 type Props = {
@@ -48,7 +49,10 @@ export default function Home({ me, bugs, posts, onReport, onOpen, onBoard, onPos
         ))}
       </div>
 
+      {!owner && <YourMonth bugs={bugs} onReport={onReport} />}
+
       {owner && <div className="th-sec"><Composer kind="focus" onPosted={onPosted} /></div>}
+      {owner && <div className="th-sec"><Roster /></div>}
 
       <div className="th-sec th-grid2">
         <div>

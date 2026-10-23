@@ -1,5 +1,5 @@
 "use client";
-import { STATUSES, type Status } from "@/lib/testers/model";
+import { MONTHLY_MIN, STATUSES, type Status } from "@/lib/testers/model";
 import { Icon, StatusPill, cssVar } from "./ui";
 
 const MEANS: Record<Status, string> = {
@@ -19,6 +19,16 @@ export default function Guide() {
       <div className="th-sechead"><div><div className="th-eye">Guide</div><h1 className="th-h1" style={{ fontSize: "clamp(30px,5vw,42px)" }}>How testing works</h1>
         <p>Everything you need, in one place.</p></div></div>
       <div className="th-guide">
+        <div className="th-card th-gc wide th-expect" style={cssVar("#f472b6")}>
+          <span className="ic"><Icon n="flag" /></span>
+          <h3 className="th-h3">What we expect from testers</h3>
+          <div className="rule"><b>{MONTHLY_MIN}</b>new bug reports, every month</div>
+          <ul>
+            <li>Submit at least <strong>{MONTHLY_MIN} new bug reports each calendar month</strong>. Your Home page shows how many you have so far.</li>
+            <li>Only your own new reports count. Me too and comments are welcome, but they don&apos;t count toward your number.</li>
+            <li>Testers who submit fewer than {MONTHLY_MIN} reports in a month will be removed from the program, and their tester access will end.</li>
+          </ul>
+        </div>
         <div className="th-card th-gc" style={cssVar("#22d3ee")}>
           <span className="ic"><Icon n="phone" /></span>
           <h3 className="th-h3">Get Sentience</h3>
