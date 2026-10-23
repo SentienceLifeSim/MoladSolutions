@@ -26,7 +26,7 @@ export default function Gate({ onIn }: { onIn: (me: Me) => void }) {
           <button className="th-btn pri" disabled={!code.trim() || busy}>{busy ? "Checking..." : "Enter"}</button>
           <div className="th-err" role="alert">{err}</div>
         </form>
-        <p className="th-small">Lost your code? Write to <a href="mailto:support@sublimelabs.tech">support@sublimelabs.tech</a></p>
+        <p className="th-small">Lost your code? <a href="https://discord.com/invite/TGZpPF3KaW" target="_blank" rel="noreferrer">Ask us on Discord</a></p>
       </div>
     </div>
   );
