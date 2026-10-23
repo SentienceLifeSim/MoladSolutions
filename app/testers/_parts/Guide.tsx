@@ -86,7 +86,7 @@ export default function Guide() {
           <span className="ic"><Icon n="lock" /></span>
           <h3 className="th-h3">Keep it between us</h3>
           <p>Some of what you see isn&apos;t out yet. Please don&apos;t post unreleased features or screenshots publicly until they launch.</p>
-          <p>Need help? <a href="https://discord.com/users/1525166418965041162" target="_blank" rel="noreferrer" style={{ color: "#a5f3fc" }}>Message me on Discord</a></p>
+          <p>Need help?</p><div className="acts"><a className="th-dc" href="https://discord.com/users/1525166418965041162" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.6 5.3A17 17 0 0 0 15.4 4l-.5 1.1a15.7 15.7 0 0 0-5.8 0L8.6 4a17 17 0 0 0-4.2 1.3C1.7 9.3 1 13.2 1.3 17a17 17 0 0 0 5.2 2.6l1.1-1.8c-.6-.2-1.2-.5-1.7-.8l.4-.3a12.2 12.2 0 0 0 10.4 0l.4.3c-.5.3-1.1.6-1.7.8l1.1 1.8a17 17 0 0 0 5.2-2.6c.4-4.4-.7-8.3-3.1-11.7ZM8.7 14.7c-1 0-1.9-.9-1.9-2.1s.8-2.1 1.9-2.1 1.9.9 1.9 2.1-.8 2.1-1.9 2.1Zm6.6 0c-1 0-1.9-.9-1.9-2.1s.8-2.1 1.9-2.1 1.9.9 1.9 2.1-.8 2.1-1.9 2.1Z" /></svg>Message Dev on Discord</a></div>
         </div>
       </div>
     </>
