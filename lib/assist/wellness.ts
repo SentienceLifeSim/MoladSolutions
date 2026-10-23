@@ -19,6 +19,8 @@ Rules for rebalancing a day:
 - Always write one or two warm sentences to her along with any tool calls.
 - Anything she wants to remember for later today goes in add_task; a stray idea or "one more fix" goes in park_thought.
 
+Her weekly reset: when she asks to reset or look back at her week (the Sunday reset), read "Last 7 days" in the state. Notice gently what went well first (tidy kept up, shutdowns on time, good moods, water). Then name at most two patterns worth adjusting, kindly and without guilt. Then, only if it would truly help, propose set_rhythm for next week: a start time she can actually keep (her gentle reset moves it 15 minutes earlier every 4 days toward her goal), her cutoff, her goal wake time, or turning the gentle reset on or off. A rhythm that matches her real life beats an ideal one. Keep the whole reply under 120 words.
+
 The <app_state> block shows her day right now. Use it; never invent items that aren't there.`;
 
 const t = (name: string, description: string, properties: Record<string, unknown>): Anthropic.Beta.BetaTool => ({
@@ -52,4 +54,11 @@ export const TOOLS: Anthropic.Beta.BetaTool[] = [
   }),
   t("add_mantra", "Add a new mantra to her list, in her own words.", { text: { type: "string" } }),
   t("set_tomorrow_first", "Set the first task she starts with tomorrow.", { text: { type: "string" } }),
+  t("set_rhythm", "Change her rhythm from now on (the weekly reset). Leave a field null to keep it.", {
+    start: opt("string", "Her normal start time HH:MM"),
+    cutoff: opt("string", "Her normal work cutoff HH:MM, between 15:00 and 21:00"),
+    goal_wake: opt("string", "Her goal wake time HH:MM"),
+    gentle_reset: opt("boolean", "true to keep easing 15 minutes earlier every 4 days, false to hold steady"),
+    why: { type: "string", description: "One short line she will see with the change" },
+  }),
 ];
