@@ -86,7 +86,7 @@ export default function Guide() {
           <span className="ic"><Icon n="lock" /></span>
           <h3 className="th-h3">Keep it between us</h3>
           <p>Some of what you see isn&apos;t out yet. Please don&apos;t post unreleased features or screenshots publicly until they launch.</p>
-          <p>Need help? Write to <a href="mailto:support@sublimelabs.tech" style={{ color: "#a5f3fc" }}>support@sublimelabs.tech</a></p>
+          <p>Need help? <a href="https://discord.com/users/1525166418965041162" target="_blank" rel="noreferrer" style={{ color: "#a5f3fc" }}>Message me on Discord</a></p>
         </div>
       </div>
     </>
