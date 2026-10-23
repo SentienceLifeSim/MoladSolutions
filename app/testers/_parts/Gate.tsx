@@ -26,7 +26,7 @@ export default function Gate({ onIn }: { onIn: (me: Me) => void }) {
           <button className="th-btn pri" disabled={!code.trim() || busy}>{busy ? "Checking..." : "Enter"}</button>
           <div className="th-err" role="alert">{err}</div>
         </form>
-        <p className="th-small">Lost your code? <a href="https://discord.com/invite/TGZpPF3KaW" target="_blank" rel="noreferrer">Ask us on Discord</a></p>
+        <p className="th-small">Lost your code? <a href="https://discord.com/users/1525166418965041162" target="_blank" rel="noreferrer">Message me on Discord</a></p>
       </div>
     </div>
   );
