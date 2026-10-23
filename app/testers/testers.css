@@ -357,3 +357,6 @@ select.th-in{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xml
 .th[data-theme="dark"] .th-kind.k-idea{color:#B794F6;background:rgba(183,148,246,.14)}
 .th-kind.k-clear{color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)}
 .th-kind.k-bug{color:var(--mut);background:var(--sunk)}
+.th-notes li.h{padding-left:0;margin-top:8px;font-weight:600;color:var(--tx)}
+.th-notes li.h:first-child{margin-top:0}
+.th-notes li.h::before{display:none}
