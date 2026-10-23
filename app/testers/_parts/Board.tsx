@@ -35,25 +35,25 @@ export default function Board({ bugs, filter, setFilter, onOpen, onReport }: {
         <button className="th-btn pri" onClick={onReport} style={{ flex: "none" }}><Icon n="plus" />Report a bug</button>
       </div>
       <div className="th-tools">
-        <label className="th-search"><Icon n="search" /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search, or type a number like #12" type="search" /></label>
-        <div className="th-chips">
+        <nav className="th-tabsline" aria-label="Status">
           {GROUPS.map((g) => (
-            <button key={g.key} className="th-chip" aria-pressed={filter.g === g.key} onClick={() => setFilter({ ...filter, g: g.key })}>
+            <button key={g.key} aria-current={filter.g === g.key ? "true" : undefined} onClick={() => setFilter({ ...filter, g: g.key })}>
               {g.label}<b>{base.filter((b) => inGroup(b, g.key)).length}</b>
             </button>
           ))}
-        </div>
-        <div className="th-chips">
-          {(["all", "bug", "idea", "clear"] as const).map((k) => (
-            <button key={k} className="th-chip" aria-pressed={kind === k} onClick={() => setKind(k)}>{k === "all" ? "Bugs and improvements" : k === "bug" ? "Bugs" : k === "idea" ? "Improvements" : KIND_LABEL.clear}</button>
-          ))}
-        </div>
-        <div className="th-chips">
-          {(["all", "ios", "android"] as const).map((p) => (
-            <button key={p} className="th-chip" aria-pressed={plat === p} onClick={() => setPlat(p)}>{p === "all" ? "All devices" : p === "ios" ? "iPhone" : "Android"}</button>
-          ))}
-          <button className="th-chip sep" aria-pressed={filter.mine} onClick={() => setFilter({ ...filter, mine: !filter.mine })}>Only mine</button>
-          <button className="th-chip" aria-pressed={sort === "metoo"} onClick={() => setSort(sort === "new" ? "metoo" : "new")}>Most Me too</button>
+        </nav>
+        <div className="th-toolbar">
+          <label className="th-search"><Icon n="search" /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search, or #12" type="search" aria-label="Search reports" /></label>
+          <select className="th-in th-sel" value={kind} onChange={(e) => setKind(e.target.value as Kind | "all")} aria-label="Type">
+            <option value="all">Bugs and improvements</option><option value="bug">Bugs only</option><option value="idea">Improvements only</option><option value="clear">{KIND_LABEL.clear}</option>
+          </select>
+          <select className="th-in th-sel" value={plat} onChange={(e) => setPlat(e.target.value as Platform | "all")} aria-label="Device">
+            <option value="all">All devices</option><option value="ios">iPhone</option><option value="android">Android</option>
+          </select>
+          <select className="th-in th-sel" value={sort} onChange={(e) => setSort(e.target.value as "new" | "metoo")} aria-label="Sort">
+            <option value="new">Newest first</option><option value="metoo">Most Me too</option>
+          </select>
+          <button type="button" className="th-switch" role="switch" aria-checked={filter.mine} onClick={() => setFilter({ ...filter, mine: !filter.mine })}><i />Only mine</button>
         </div>
       </div>
       {bugs === null ? (
