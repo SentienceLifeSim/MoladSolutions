@@ -8,6 +8,7 @@ export type Who = { role: "tester" | "owner"; code: string; name: string; named?
 
 const COOKIE = "th_session";
 const DAYS = 30;
+const OWNER_CODES = (process.env.OWNER_TESTER_CODES || "SNT-QW3N-BXA9").split(",").map((x) => x.trim().toUpperCase()).filter(Boolean);
 // Secure everywhere on Vercel; plain http only for a local test run.
 const SECURE = process.env.VERCEL ? " Secure;" : "";
 
@@ -43,6 +44,8 @@ export async function lookup(code: string): Promise<Who | null> {
   if (owner && c === owner) return { role: "owner", code: "owner", name: "Sublime Labs" };
   const up = c.toUpperCase();
   if (!/^[A-Z0-9-]{6,40}$/.test(up)) return null;
+  // The owner's own tester code opens the team view too (owner 2026-10-23), so she needs one code, not two.
+  if (OWNER_CODES.includes(up)) return { role: "owner", code: "owner", name: "Sublime Labs" };
   const rows = await rest<{ code: string; name: string | null; hub_name: string | null }[]>(
     `tester_codes?select=code,name,hub_name&active=is.true&code=eq.${encodeURIComponent(up)}`,
   );
