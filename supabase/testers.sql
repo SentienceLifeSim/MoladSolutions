@@ -69,3 +69,7 @@ on conflict (id) do nothing;
 -- All three count toward a tester's monthly number.
 alter table tester_bugs add column if not exists kind text not null default 'bug';
 update tester_bugs set kind = 'idea' where id = 2 and title like 'Newborn options%';
+
+-- 2026-10-23: the name a tester gives on their first Tester Hub sign in (codes only carry "Tester 06").
+alter table tester_codes add column if not exists hub_name text;
+alter table tester_codes add column if not exists hub_seen_at timestamptz;

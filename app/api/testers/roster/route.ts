@@ -10,13 +10,13 @@ export async function GET(req: Request) {
   try {
     const now = monthStart(), prev = monthStart(new Date(now.getTime() - 864e5));
     const [codes, bugs] = await Promise.all([
-      rest<{ code: string; name: string | null }[]>("tester_codes?select=code,name&active=is.true"),
+      rest<{ code: string; name: string | null; hub_name: string | null }[]>("tester_codes?select=code,name,hub_name&active=is.true"),
       rest<{ reporter_code: string; created_at: string }[]>(`tester_bugs?select=reporter_code,created_at&created_at=gte.${prev.toISOString()}`),
     ]);
     const rows: RosterRow[] = codes.map((c) => {
       const mine = bugs.filter((b) => b.reporter_code === c.code);
       return {
-        name: c.name?.trim() || `Tester ${c.code.slice(-4)}`,
+        name: c.hub_name?.trim() || c.name?.trim() || `Tester ${c.code.slice(-4)}`,
         month: mine.filter((b) => new Date(b.created_at) >= now).length,
         last: prev.getTime() >= HUB_OPENED ? mine.filter((b) => new Date(b.created_at) < now).length : null,
       };

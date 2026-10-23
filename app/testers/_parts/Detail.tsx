@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { KIND_LABEL, PLATFORM_LABEL, STATUSES, STATUS_LABEL, type Bug, type Comment, type Status } from "@/lib/testers/model";
-import { ago, call, initial } from "./api";
+import { ago, call, initial, shownName } from "./api";
 import { Icon, Lightbox, Sev, Sheet, StatusPill, STATUS_COLOR, cssVar } from "./ui";
 import type { Me } from "./Gate";
 
@@ -46,7 +46,7 @@ export default function Detail({ bug, me, onClose, onChange, onDeleted, onOpen, 
   const facts: [string, string | null][] = [
     ["Device", bug.device || PLATFORM_LABEL[bug.platform]],
     ["App version", bug.app_version], ["Part of the game", bug.area],
-    ["Reported by", bug.mine ? "You" : bug.reporter_name], ["When", new Date(bug.created_at).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })],
+    ["Reported by", bug.mine ? "You" : shownName(bug.reporter_name)], ["When", new Date(bug.created_at).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })],
   ];
 
   return (
@@ -107,7 +107,7 @@ export default function Detail({ bug, me, onClose, onChange, onDeleted, onOpen, 
             <div key={c.id} className={`th-cmt${c.owner ? " team" : ""}`}>
               <span className="th-av">{c.owner ? "S" : initial(c.name)}</span>
               <div className="bx">
-                <div><b>{c.mine ? "You" : c.name ?? "A tester"}</b>{c.owner && <span className="tm">Team</span>}<span>{ago(c.created_at)}</span></div>
+                <div><b>{c.mine ? "You" : c.owner ? c.name : shownName(c.name)}</b>{c.owner && <span className="tm">Team</span>}<span>{ago(c.created_at)}</span></div>
                 <p>{c.body}</p>
               </div>
             </div>

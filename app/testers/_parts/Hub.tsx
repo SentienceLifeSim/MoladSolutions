@@ -63,7 +63,7 @@ export default function Hub() {
     call<{ me: Me | null }>("session").then((r) => setMe(r.me)).catch(() => setMe(null));
   }, []);
   useEffect(() => {
-    if (!me) return;
+    if (!me || me.needName) return;
     refresh();
     const t = window.setInterval(() => document.visibilityState === "visible" && refresh(), 45000);
     const v = () => document.visibilityState === "visible" && refresh();
@@ -89,7 +89,7 @@ export default function Hub() {
   const posted = (p: Post) => { setPosts((all) => [p, ...(all ?? [])]); toast("Posted"); };
 
   if (me === undefined) return <div className="th" data-theme={theme} />;
-  if (me === null) return <div className="th" data-theme={theme}><div className="th-gatetheme">{themeBtn}</div><Gate onIn={setMe} /></div>;
+  if (me === null || me.needName) return <div className="th" data-theme={theme}><div className="th-gatetheme">{themeBtn}</div><Gate key={me ? "name" : "code"} askName={!!me?.needName} onIn={setMe} /></div>;
 
   const current = open !== null ? bugs?.find((b) => b.id === open) : undefined;
   return (

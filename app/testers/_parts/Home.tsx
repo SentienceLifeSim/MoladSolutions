@@ -38,7 +38,7 @@ export default function Home({ me, bugs, posts, onReport, onOpen, onBoard, onPos
       <section className="th-hero">
         <div>
           <p className="th-eye" style={{ margin: 0 }}>{today}</p>
-          <h1 className="th-h1">{owner ? "Welcome back" : `Welcome back, ${firstName(me.name)}`}</h1>
+          <h1 className="th-h1">{owner ? "Welcome back" : `${me.first ? "Welcome" : "Welcome back"}, ${firstName(me.name)}`}</h1>
           <p className="th-lead">{owner ? "Everything your testers sent, and what needs a status." : "Here's what's open on the board and what to test next."}</p>
         </div>
         <div className="acts">

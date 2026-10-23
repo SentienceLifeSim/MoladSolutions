@@ -3,7 +3,8 @@
 import { createHmac, timingSafeEqual } from "crypto";
 import { rest } from "./db";
 
-export type Who = { role: "tester" | "owner"; code: string; name: string };
+/** named: the tester has told us their real name (codes only carry "Tester 06"). */
+export type Who = { role: "tester" | "owner"; code: string; name: string; named?: boolean };
 
 const COOKIE = "th_session";
 const DAYS = 30;
@@ -42,19 +43,23 @@ export async function lookup(code: string): Promise<Who | null> {
   if (owner && c === owner) return { role: "owner", code: "owner", name: "Sublime Labs" };
   const up = c.toUpperCase();
   if (!/^[A-Z0-9-]{6,40}$/.test(up)) return null;
-  const rows = await rest<{ code: string; name: string | null }[]>(
-    `tester_codes?select=code,name&active=is.true&code=eq.${encodeURIComponent(up)}`,
+  const rows = await rest<{ code: string; name: string | null; hub_name: string | null }[]>(
+    `tester_codes?select=code,name,hub_name&active=is.true&code=eq.${encodeURIComponent(up)}`,
   );
   if (!rows[0]) return null;
-  return { role: "tester", code: rows[0].code, name: rows[0].name?.trim() || `Tester ${up.slice(-4)}` };
+  const given = rows[0].hub_name?.trim();
+  return { role: "tester", code: rows[0].code, name: given || rows[0].name?.trim() || `Tester ${up.slice(-4)}`, named: !!given };
 }
 
 /** The signed in person, or null. fresh re-checks that a tester was not revoked since signing in. */
 export async function who(req: Request, fresh = false): Promise<Who | null> {
   const w = readCookie(req);
   if (!w || !fresh || w.role === "owner") return w;
-  const rows = await rest<{ code: string }[]>(`tester_codes?select=code&active=is.true&code=eq.${encodeURIComponent(w.code)}`);
-  return rows[0] ? w : null;
+  // Fresh: still active, and always the name they gave us, even on an older cookie.
+  const rows = await rest<{ code: string; hub_name: string | null }[]>(`tester_codes?select=code,hub_name&active=is.true&code=eq.${encodeURIComponent(w.code)}`);
+  if (!rows[0]) return null;
+  const given = rows[0].hub_name?.trim();
+  return given ? { ...w, name: given, named: true } : { ...w, named: false };
 }
 
 export const json = (data: unknown, status = 200, extra: Record<string, string> = {}) =>

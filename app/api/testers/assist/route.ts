@@ -23,8 +23,8 @@ async function board(me: { role: string; code: string; name: string }): Promise<
   ];
   if (!owner) parts.push(`This tester (${me.name}) has ${mine} of ${MONTHLY_MIN} reports this month.`);
   else {
-    const codes = await rest<{ code: string; name: string | null }[]>("tester_codes?select=code,name&active=is.true");
-    const counts = codes.map((c) => `${c.name ?? c.code.slice(-4)} ${bugs.filter((b) => b.reporter_code === c.code && new Date(b.created_at) >= start).length}`);
+    const codes = await rest<{ code: string; name: string | null; hub_name: string | null }[]>("tester_codes?select=code,name,hub_name&active=is.true");
+    const counts = codes.map((c) => `${c.hub_name ?? c.name ?? c.code.slice(-4)} ${bugs.filter((b) => b.reporter_code === c.code && new Date(b.created_at) >= start).length}`);
     parts.push(`Reports this month per tester (minimum ${MONTHLY_MIN}): ${counts.join(", ")}`);
   }
   return parts.join("\n\n");
@@ -45,7 +45,15 @@ export async function POST(req: Request) {
   );
   try {
     const state = await board(w);
-    return json(await ask({ system: owner ? TEAM_SYSTEM : TESTER_SYSTEM, tools: owner ? TEAM_TOOLS : TESTER_TOOLS, history, message, state, stateTag: "board" }));
+    const out = await ask({ system: owner ? TEAM_SYSTEM : TESTER_SYSTEM, tools: owner ? TEAM_TOOLS : TESTER_TOOLS, history, message, state, stateTag: "board" });
+    // The model sometimes proposes without a sentence of its own; testers always get one that fits.
+    if (!owner && (!out.reply || out.reply === "Here's what I'd change:")) {
+      const a = out.actions[0];
+      out.reply = a?.name === "me_too" ? "This looks like it's already on the board, so a Me too is the best way to help."
+        : a?.name === "draft_report" && a.input.kind === "idea" ? "Thank you for the idea! Bugs come first, and improvements will be prioritized once all bugs are squashed. I've filled it in as an improvement for you."
+        : a?.name === "draft_report" ? "I filled in a report for you. Add a screenshot if you can, then send it." : out.reply;
+    }
+    return json(out);
   } catch (e) {
     console.error("assist testers", (e as Error).message);
     return json({ error: "The helper couldn't think just now. Try again in a moment." }, 502);

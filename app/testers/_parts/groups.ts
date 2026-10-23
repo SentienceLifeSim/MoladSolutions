@@ -16,11 +16,13 @@ export const inGroup = (b: Bug, g: GroupKey) => {
 };
 
 /** Testers whose reports turned out real (confirmed or further), most first. */
+import { shownName } from "./api";
+
 export function finders(bugs: Bug[]) {
   const real = new Set<Status>(["confirmed", "fixing", "fixed", "live"]);
   const m = new Map<string, { name: string; n: number; total: number; me: boolean }>();
   for (const b of bugs) {
-    const name = b.reporter_name ?? "A tester";
+    const name = shownName(b.reporter_name);
     const r = m.get(name) ?? { name, n: 0, total: 0, me: false };
     r.total++; if (real.has(b.status)) r.n++; if (b.mine) r.me = true;
     m.set(name, r);

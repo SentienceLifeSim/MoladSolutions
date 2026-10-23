@@ -1,7 +1,7 @@
 "use client";
 import type { Bug } from "@/lib/testers/model";
 import { KIND_LABEL, PLATFORM_LABEL } from "@/lib/testers/model";
-import { ago } from "./api";
+import { ago, shownName } from "./api";
 import { Icon, StatusPill, Sev } from "./ui";
 
 export default function BugRow({ b, onOpen }: { b: Bug; onOpen: (id: number) => void }) {
@@ -21,7 +21,7 @@ export default function BugRow({ b, onOpen }: { b: Bug; onOpen: (id: number) => 
           {b.kind === "bug" ? <Sev s={b.severity} /> : <span className={`th-kind k-${b.kind}`}>{KIND_LABEL[b.kind]}</span>}<i className="dot" />{PLATFORM_LABEL[b.platform]}{b.area && <><i className="dot" />{b.area}</>}
         </span>
         <span className="th-meta">
-          {b.mine ? <span className="th-mine">Yours</span> : <span>{b.reporter_name ?? "A tester"}</span>}<i className="dot" />{ago(b.created_at)}
+          {b.mine ? <span className="th-mine">Yours</span> : <span>{shownName(b.reporter_name)}</span>}<i className="dot" />{ago(b.created_at)}
           <span className="th-counts" style={{ marginLeft: "auto" }}>
             <span className={b.iMetoo ? "on" : ""}><Icon n="hand" />{b.metoo}</span>
             <span><Icon n="chat" />{b.comments}</span>

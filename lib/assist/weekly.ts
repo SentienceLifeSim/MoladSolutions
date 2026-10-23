@@ -14,7 +14,7 @@ export type Weekly = { title: string; detail: string; counts: { newThisWeek: num
 export async function buildWeekly(now = Date.now()): Promise<Weekly> {
   const [bugs, codes] = await Promise.all([
     rest<Row[]>("tester_bugs?select=id,kind,title,happened,status,severity,metoo,reporter_code,reporter_name,duplicate_of,created_at,updated_at&order=created_at.desc&limit=500"),
-    rest<{ code: string; name: string | null }[]>("tester_codes?select=code,name&active=is.true"),
+    rest<{ code: string; name: string | null; hub_name: string | null }[]>("tester_codes?select=code,name,hub_name&active=is.true"),
   ]);
   const weekAgo = now - 7 * 864e5;
   const fresh = bugs.filter((b) => Date.parse(b.created_at) >= weekAgo);
@@ -24,7 +24,7 @@ export async function buildWeekly(now = Date.now()): Promise<Weekly> {
   const top = [...open].filter((b) => b.kind === "bug").sort((a, b) => SEV_RANK[a.severity] - SEV_RANK[b.severity] || b.metoo - a.metoo || b.id - a.id).slice(0, 5);
   const start = monthStart(new Date(now));
   const short = codes
-    .map((c) => ({ name: c.name?.trim() || `Tester ${c.code.slice(-4)}`, n: bugs.filter((b) => b.reporter_code === c.code && Date.parse(b.created_at) >= start.getTime()).length }))
+    .map((c) => ({ name: c.hub_name?.trim() || c.name?.trim() || `Tester ${c.code.slice(-4)}`, n: bugs.filter((b) => b.reporter_code === c.code && Date.parse(b.created_at) >= start.getTime()).length }))
     .filter((t) => t.n < MONTHLY_MIN)
     .sort((a, b) => a.n - b.n || a.name.localeCompare(b.name));
   const daysLeft = Math.max(0, Math.ceil((monthEnd(new Date(now)).getTime() + 864e5 - now) / 864e5));

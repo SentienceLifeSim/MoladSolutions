@@ -45,3 +45,6 @@ const STOP = new Set("the a an and or but to of in on at for with is it its this
 export function words(s: string): string[] {
   return s.toLowerCase().replace(/[^a-z0-9 ]+/g, " ").split(/\s+/).filter((w) => w.length > 2 && !STOP.has(w));
 }
+
+/** Placeholder code names ("Tester 06") never show to other testers; until someone gives their name they are "A tester". */
+export const shownName = (n: string | null | undefined) => (!n || /^Tester \d{1,3}$/i.test(n.trim()) ? "A tester" : n);
