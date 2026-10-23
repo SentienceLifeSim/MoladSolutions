@@ -1,12 +1,12 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { VERIFY_AT, type Bug, type Retest as RetestRow, type RetestResult, type Shot } from "@/lib/testers/model";
+import { RETESTABLE, VERIFY_AT, type Bug, type Retest as RetestRow, type RetestResult, type Shot } from "@/lib/testers/model";
 import { ago, call, guessDevice, shownName } from "./api";
 import { normalize } from "./Report";
 import { Icon, Lightbox, Sev } from "./ui";
 
-/** Reports a tester can check right now: fixed bugs they haven't answered since the fix landed. */
-export const toRetest = (bugs: Bug[] | null) => (bugs ?? []).filter((b) => b.kind === "bug" && (b.status === "live" || b.status === "fixed"));
+/** Reports a tester can check right now: bugs whose fix is in the store version. */
+export const toRetest = (bugs: Bug[] | null) => (bugs ?? []).filter((b) => b.kind === "bug" && RETESTABLE.includes(b.status));
 export const waiting = (bugs: Bug[] | null) => toRetest(bugs).filter((b) => !b.myRetest);
 
 type Answer = { retest_ok: number; retest_still: number; status: Bug["status"]; comments?: number; myRetest: { result: RetestResult; at: string } };
@@ -114,7 +114,7 @@ function Card({ b, owner, onOpen, onAnswered, toast }: { b: Bug; owner: boolean;
   return (
     <article className="th-card th-rt">
       <div className="th-rt-top">
-        <span className={`th-rt-build${b.status === "live" ? " live" : ""}`}>{b.status === "live" ? (b.fixed_in ? `Fixed in v${b.fixed_in}` : "Fixed in the store version") : "Fixed for the next build"}</span>
+        <span className="th-rt-build live">{b.fixed_in ? `Fixed in v${b.fixed_in}` : "Fixed in the store version"}</span>
         <Sev s={b.severity} />
         <span className="th-dim" style={{ fontSize: 12.5, marginLeft: "auto" }}>{checked === 0 ? "No one has checked yet" : `Checked by ${checked} ${checked === 1 ? "tester" : "testers"}`}</span>
       </div>
@@ -139,7 +139,6 @@ export default function Retest({ bugs, owner, onOpen, onAnswered, toast }: {
 }) {
   const all = toRetest(bugs);
   const open = owner ? all : all.filter((b) => !b.myRetest), done = owner ? [] : all.filter((b) => b.myRetest);
-  const live = open.filter((b) => b.status === "live"), next = open.filter((b) => b.status === "fixed");
   const card = (b: Bug) => <Card key={b.id} b={b} owner={owner} onOpen={onOpen} onAnswered={onAnswered} toast={toast} />;
   return (
     <>
@@ -149,11 +148,10 @@ export default function Retest({ bugs, owner, onOpen, onAnswered, toast }: {
             : `These bugs were fixed. Try them in your own game and tell us if the fix worked for you. Every check counts toward your month.`}</p></div>
       </div>
       {bugs === null ? <div className="th-list"><div className="th-skel" /><div className="th-skel" /></div> : all.length === 0 ? (
-        <div className="th-empty">Nothing to retest right now. Fixes show up here as soon as they ship.</div>
+        <div className="th-empty">Nothing to retest right now. Fixes show up here once they&apos;re live in the App Store.</div>
       ) : (
         <div className="th-rt-wrap">
-          {live.length > 0 && <section><h2 className="th-h2">In the App Store version</h2><p className="th-mut th-rt-sub">Update Sentience first, then try each one.</p>{live.map(card)}</section>}
-          {next.length > 0 && <section><h2 className="th-h2">Fixed for the next build</h2><p className="th-mut th-rt-sub">On TestFlight? Install the newest build first. Otherwise these arrive with the next update.</p>{next.map(card)}</section>}
+          {open.length > 0 && <section><h2 className="th-h2">In the App Store version</h2><p className="th-mut th-rt-sub">Update Sentience first, then try each one.</p>{open.map(card)}</section>}
           {!owner && open.length === 0 && <div className="th-empty">You&apos;ve checked every fix. Thank you.</div>}
           {done.length > 0 && <section><h2 className="th-h2">You checked</h2>{done.map(card)}</section>}
         </div>

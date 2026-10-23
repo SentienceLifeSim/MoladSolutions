@@ -12,7 +12,7 @@ export async function recount(bug: Pick<Bug, "id" | "status" | "fixed_at">): Pro
   const rows = await rest<Row[]>(`tester_bug_retests?select=result,created_at&bug_id=eq.${bug.id}`);
   const live = rows.filter((r) => current(bug, r.created_at));
   const retest_ok = live.filter((r) => r.result === "fixed").length, retest_still = live.filter((r) => r.result === "still").length;
-  const status = retest_still === 0 && retest_ok >= VERIFY_AT && (bug.status === "live" || bug.status === "fixed") ? "verified" : bug.status;
+  const status = retest_still === 0 && retest_ok >= VERIFY_AT && bug.status === "live" ? "verified" : bug.status;
   await rest(`tester_bugs?id=eq.${bug.id}`, {
     method: "PATCH",
     body: { retest_ok, retest_still, ...(status !== bug.status ? { status, updated_at: new Date().toISOString() } : {}) },

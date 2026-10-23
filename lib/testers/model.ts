@@ -35,8 +35,8 @@ export type Bug = {
 export const RETEST_RESULTS = ["fixed", "still"] as const;
 export type RetestResult = (typeof RETEST_RESULTS)[number];
 export type Retest = { id: number; name: string | null; result: RetestResult; note: string | null; shots: Shot[]; device: string | null; created_at: string; mine?: boolean };
-/** Bugs testers can check: fixed in the store version, or fixed for the next build (TestFlight). */
-export const RETESTABLE: readonly Status[] = ["live", "fixed"];
+/** Bugs testers can check: only fixes already in the store version (owner 2026-10-23: they can't test what they don't have). */
+export const RETESTABLE: readonly Status[] = ["live"];
 /** This many "Fixed for me" answers marks a report Verified fixed on its own. */
 export const VERIFY_AT = 2;
 export type Comment = { id: number; name: string | null; owner: boolean; body: string; created_at: string; mine?: boolean };

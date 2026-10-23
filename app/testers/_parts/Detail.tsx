@@ -85,7 +85,7 @@ export default function Detail({ bug, me, onClose, onChange, onAnswered, onDelet
       </div>}
       {bug.mine && bug.metoo > 0 && <p className="th-mut" style={{ margin: 0, fontSize: 14 }}>{bug.metoo} {bug.metoo === 1 ? "tester sees" : "testers see"} this too.</p>}
 
-      {!owner && bug.kind === "bug" && (bug.status === "live" || bug.status === "fixed") && (
+      {!owner && bug.kind === "bug" && bug.status === "live" && (
         <div className="th-card" style={{ display: "flex", flexDirection: "column", gap: 12, boxShadow: "none" }}>
           <b style={{ fontSize: 15 }}>Is it fixed for you?</b>
           <RetestAsk bug={bug} onAnswered={onAnswered} toast={toast} />

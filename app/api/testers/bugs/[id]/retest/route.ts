@@ -40,7 +40,7 @@ export async function POST(req: Request, { params }: Ctx) {
   try {
     const [bug] = await rest<Pick<Bug, "id" | "kind" | "title" | "status" | "fixed_at">[]>(`tester_bugs?select=id,kind,title,status,fixed_at&id=eq.${id}`);
     if (!bug) return json({ error: "No such report." }, 404);
-    if (bug.kind !== "bug" || !["fixed", "live", "verified"].includes(bug.status)) return json({ error: "This report isn't ready to retest." }, 400);
+    if (bug.kind !== "bug" || !["live", "verified"].includes(bug.status)) return json({ error: "This report isn't ready to retest." }, 400);
     const at = new Date().toISOString();
     await rest("tester_bug_retests?on_conflict=bug_id,code", {
       method: "POST", prefer: "resolution=merge-duplicates",
