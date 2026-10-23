@@ -1,5 +1,6 @@
 {
   "crons": [
-    { "path": "/api/testers/weekly", "schedule": "0 14 * * 1" }
+    { "path": "/api/testers/weekly", "schedule": "0 14 * * 1" },
+    { "path": "/api/testers/builds-sync", "schedule": "30 15 * * *" }
   ]
 }
