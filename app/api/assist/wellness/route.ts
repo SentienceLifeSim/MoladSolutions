@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     (t): t is Turn => (t?.role === "user" || t?.role === "assistant") && typeof t?.text === "string" && t.text.trim().length > 0,
   );
   try {
-    return out(await ask({ system: SYSTEM, tools: TOOLS, history, message, state: typeof b.state === "string" ? b.state : "" }));
+    return out(await ask({ system: SYSTEM, tools: TOOLS, history, message, state: typeof b.state === "string" ? b.state : "", declined: "I can't help with that one, love." }));
   } catch (e) {
     console.error("assist wellness", (e as Error).message);
     return out({ error: "I couldn't think just now. Try again in a moment." }, 502);

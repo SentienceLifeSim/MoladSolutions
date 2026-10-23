@@ -8,10 +8,11 @@ export const MODEL = process.env.ASSIST_MODEL || "claude-sonnet-5-5";
 export type Turn = { role: "user" | "assistant"; text: string };
 export type Action = { name: string; input: Record<string, unknown> };
 
-export async function ask(o: { system: string; tools: Anthropic.Beta.BetaTool[]; history: Turn[]; message: string; state: string }) {
+export async function ask(o: { system: string; tools: Anthropic.Beta.BetaTool[]; history: Turn[]; message: string; state: string; stateTag?: string; declined?: string }) {
+  const tag = o.stateTag ?? "app_state";
   const messages: Anthropic.Beta.BetaMessageParam[] = [
     ...o.history.slice(-12).map((t) => ({ role: t.role, content: t.text.slice(0, 4000) }) as Anthropic.Beta.BetaMessageParam),
-    { role: "user", content: [{ type: "text", text: `<app_state>\n${o.state.slice(0, 12000)}\n</app_state>` }, { type: "text", text: o.message.slice(0, 4000) }] },
+    { role: "user", content: [{ type: "text", text: `<${tag}>\n${o.state.slice(0, 20000)}\n</${tag}>` }, { type: "text", text: o.message.slice(0, 4000) }] },
   ];
   // The API wants turns to alternate, starting with the user.
   while (messages.length > 1 && messages[0].role !== "user") messages.shift();
@@ -26,7 +27,7 @@ export async function ask(o: { system: string; tools: Anthropic.Beta.BetaTool[];
     tool_choice: { type: "auto" },
     messages,
   });
-  if (res.stop_reason === "refusal") return { reply: "I can't help with that one, love.", actions: [] as Action[] };
+  if (res.stop_reason === "refusal") return { reply: o.declined ?? "I can't help with that one.", actions: [] as Action[] };
   const text = res.content.flatMap((b) => (b.type === "text" ? [b.text] : [])).join("\n").trim();
   const actions: Action[] = res.content.flatMap((b) => (b.type === "tool_use" ? [{ name: b.name, input: b.input as Record<string, unknown> }] : []));
   return { reply: text || (actions.length ? "Here's what I'd change:" : ""), actions };
