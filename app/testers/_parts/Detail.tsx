@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { PLATFORM_LABEL, STATUSES, STATUS_LABEL, type Bug, type Comment, type Status } from "@/lib/testers/model";
+import { KIND_LABEL, PLATFORM_LABEL, STATUSES, STATUS_LABEL, type Bug, type Comment, type Status } from "@/lib/testers/model";
 import { ago, call, initial } from "./api";
 import { Icon, Lightbox, Sev, Sheet, StatusPill, STATUS_COLOR, cssVar } from "./ui";
 import type { Me } from "./Gate";
@@ -52,7 +52,7 @@ export default function Detail({ bug, me, onClose, onChange, onDeleted, onOpen, 
   return (
     <Sheet title={<span className="th-dim" style={{ fontWeight: 600 }}>Report #{bug.id}</span>} onClose={onClose}>
       <div className="th-dhead">
-        <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}><StatusPill s={bug.status} /><Sev s={bug.severity} /></div>
+        <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>{bug.kind === "clear" ? null : <StatusPill s={bug.status} />}{bug.kind === "bug" ? <Sev s={bug.severity} /> : <span className={`th-kind k-${bug.kind}`}>{KIND_LABEL[bug.kind]}</span>}</div>
         <h2>{bug.title}</h2>
       </div>
       {bug.status === "dup" && bug.duplicate_of && (
@@ -71,7 +71,7 @@ export default function Detail({ bug, me, onClose, onChange, onDeleted, onOpen, 
           })}
         </div>
       )}
-      <div className="th-blk"><h5>What happened</h5><p>{bug.happened}</p></div>
+      <div className="th-blk"><h5>{bug.kind === "bug" ? "What happened" : bug.kind === "idea" ? "Suggestion" : "What they tested"}</h5><p>{bug.happened}</p></div>
       {bug.steps && <div className="th-blk"><h5>How to make it happen</h5><p>{bug.steps}</p></div>}
       {bug.expected && <div className="th-blk"><h5>Expected</h5><p>{bug.expected}</p></div>}
       <dl className="th-facts" style={{ margin: 0 }}>{facts.filter(([, v]) => v).map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>

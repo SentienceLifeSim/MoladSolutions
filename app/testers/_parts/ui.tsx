@@ -25,6 +25,8 @@ const P: Record<string, string> = {
   flag: "M5 21V4M5 4h11l-2 4 2 4H5",
   out: "M15 4h4v16h-4M10 17l5-5-5-5M15 12H3",
   check: "M5 12.5l4.5 4.5L19 7",
+  sun: "M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4",
+  moon: "M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z",
 };
 export function Icon({ n, className = "th-ico" }: { n: keyof typeof P | string; className?: string }) {
   return <svg className={className} viewBox="0 0 24 24" aria-hidden="true"><path d={P[n] ?? ""} /></svg>;
@@ -72,4 +74,9 @@ export function Lightbox({ src, video, onClose }: { src: string; video: boolean;
       {video ? <video src={src} controls autoPlay playsInline onClick={(e) => e.stopPropagation()} /> : <img src={src} alt="Screenshot" />}
     </div>
   );
+}
+
+/** Message Dev on Discord: the one way testers reach the owner directly. */
+export function DiscordLink() {
+  return <a className="th-dc" href="https://discord.com/users/1525166418965041162" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.6 5.3A17 17 0 0 0 15.4 4l-.5 1.1a15.7 15.7 0 0 0-5.8 0L8.6 4a17 17 0 0 0-4.2 1.3C1.7 9.3 1 13.2 1.3 17a17 17 0 0 0 5.2 2.6l1.1-1.8c-.6-.2-1.2-.5-1.7-.8l.4-.3a12.2 12.2 0 0 0 10.4 0l.4.3c-.5.3-1.1.6-1.7.8l1.1 1.8a17 17 0 0 0 5.2-2.6c.4-4.4-.7-8.3-3.1-11.7ZM8.7 14.7c-1 0-1.9-.9-1.9-2.1s.8-2.1 1.9-2.1 1.9.9 1.9 2.1-.8 2.1-1.9 2.1Zm6.6 0c-1 0-1.9-.9-1.9-2.1s.8-2.1 1.9-2.1 1.9.9 1.9 2.1-.8 2.1-1.9 2.1Z" /></svg>Message Dev on Discord</a>;
 }

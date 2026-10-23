@@ -1,6 +1,6 @@
 "use client";
 import type { Bug } from "@/lib/testers/model";
-import { PLATFORM_LABEL } from "@/lib/testers/model";
+import { KIND_LABEL, PLATFORM_LABEL } from "@/lib/testers/model";
 import { ago } from "./api";
 import { Icon, StatusPill, Sev } from "./ui";
 
@@ -9,7 +9,7 @@ export default function BugRow({ b, onOpen }: { b: Bug; onOpen: (id: number) => 
   return (
     <button className="th-bug" onClick={() => onOpen(b.id)}>
       <span className="th-thumb">
-        {first ? (vid ? <video src={first.url} muted playsInline preload="metadata" /> : <img src={first.url} alt="" loading="lazy" />) : <Icon n="bug" />}
+        {first ? (vid ? <video src={first.url} muted playsInline preload="metadata" /> : <img src={first.url} alt="" loading="lazy" />) : <Icon n={b.kind === "idea" ? "bulb" : b.kind === "clear" ? "check" : "bug"} />}
         {b.shots.length > 1 && <em>+{b.shots.length - 1}</em>}
       </span>
       <span className="bd">
@@ -18,7 +18,7 @@ export default function BugRow({ b, onOpen }: { b: Bug; onOpen: (id: number) => 
           <StatusPill s={b.status} />
         </span>
         <span className="th-meta">
-          <Sev s={b.severity} /><i className="dot" />{PLATFORM_LABEL[b.platform]}{b.area && <><i className="dot" />{b.area}</>}
+          {b.kind === "bug" ? <Sev s={b.severity} /> : <span className={`th-kind k-${b.kind}`}>{KIND_LABEL[b.kind]}</span>}<i className="dot" />{PLATFORM_LABEL[b.platform]}{b.area && <><i className="dot" />{b.area}</>}
         </span>
         <span className="th-meta">
           {b.mine ? <span className="th-mine">Yours</span> : <span>{b.reporter_name ?? "A tester"}</span>}<i className="dot" />{ago(b.created_at)}

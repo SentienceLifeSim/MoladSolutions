@@ -12,7 +12,7 @@ export default function Builds({ owner, bugs, posts, onOpen, onPosted, onDeleteP
   const builds = (posts ?? []).filter((p) => p.kind === "build");
   return (
     <>
-      <div className="th-sechead"><div><div className="th-eye">Builds</div><h1 className="th-h1" style={{ fontSize: "clamp(30px,5vw,42px)" }}>What&apos;s new</h1>
+      <div className="th-sechead"><div><div className="th-eye">Builds</div><h1 className="th-h1">What&apos;s new</h1>
         <p>Every update, and the fixes waiting to go out.</p></div></div>
       {owner && <div style={{ marginBottom: 28 }}><Composer kind="build" onPosted={onPosted} /></div>}
       <div className="th-grid2">

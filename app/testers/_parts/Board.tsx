@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
-import type { Bug, Platform } from "@/lib/testers/model";
+import { KIND_LABEL, type Bug, type Kind, type Platform } from "@/lib/testers/model";
 import { words } from "./api";
 import { GROUPS, inGroup, type GroupKey } from "./groups";
 import { Icon } from "./ui";
@@ -11,9 +11,9 @@ export type BoardFilter = { g: GroupKey; mine: boolean };
 export default function Board({ bugs, filter, setFilter, onOpen, onReport }: {
   bugs: Bug[] | null; filter: BoardFilter; setFilter: (f: BoardFilter) => void; onOpen: (id: number) => void; onReport: () => void;
 }) {
-  const [q, setQ] = useState(""), [plat, setPlat] = useState<Platform | "all">("all"), [sort, setSort] = useState<"new" | "metoo">("new");
+  const [q, setQ] = useState(""), [plat, setPlat] = useState<Platform | "all">("all"), [sort, setSort] = useState<"new" | "metoo">("new"), [kind, setKind] = useState<Kind | "all">("all");
   const all = bugs ?? [];
-  const base = all.filter((b) => (plat === "all" || b.platform === plat) && (!filter.mine || b.mine));
+  const base = all.filter((b) => (plat === "all" || b.platform === plat) && (!filter.mine || b.mine) && (kind === "all" ? b.kind !== "clear" : b.kind === kind));
   const shown = useMemo(() => {
     const qs = words(q), num = /^#?(\d+)$/.exec(q.trim());
     let r = base.filter((b) => inGroup(b, filter.g));
@@ -30,7 +30,7 @@ export default function Board({ bugs, filter, setFilter, onOpen, onReport }: {
   return (
     <>
       <div className="th-sechead">
-        <div><div className="th-eye">Bug board</div><h1 className="th-h1" style={{ fontSize: "clamp(30px,5vw,42px)" }}>Everything reported</h1>
+        <div><div className="th-eye">Bug board</div><h1 className="th-h1">Everything reported</h1>
           <p>Check here first. If it&apos;s already on the board, tap Me too instead of a new report.</p></div>
         <button className="th-btn pri" onClick={onReport} style={{ flex: "none" }}><Icon n="plus" />Report a bug</button>
       </div>
@@ -41,6 +41,11 @@ export default function Board({ bugs, filter, setFilter, onOpen, onReport }: {
             <button key={g.key} className="th-chip" aria-pressed={filter.g === g.key} onClick={() => setFilter({ ...filter, g: g.key })}>
               {g.label}<b>{base.filter((b) => inGroup(b, g.key)).length}</b>
             </button>
+          ))}
+        </div>
+        <div className="th-chips">
+          {(["all", "bug", "idea", "clear"] as const).map((k) => (
+            <button key={k} className="th-chip" aria-pressed={kind === k} onClick={() => setKind(k)}>{k === "all" ? "Bugs and suggestions" : k === "bug" ? "Bugs" : k === "idea" ? "Suggestions" : KIND_LABEL.clear}</button>
           ))}
         </div>
         <div className="th-chips">

@@ -5,7 +5,7 @@ import { MODEL } from "./claude";
 import { rest } from "@/lib/testers/db";
 import { MONTHLY_MIN, SEVERITY_LABEL, STATUS_LABEL, monthEnd, monthName, monthStart, type Severity, type Status } from "@/lib/testers/model";
 
-type Row = { id: number; title: string; happened: string; status: Status; severity: Severity; metoo: number; reporter_code: string; reporter_name: string | null; duplicate_of: number | null; created_at: string; updated_at: string };
+type Row = { id: number; kind: string; title: string; happened: string; status: Status; severity: Severity; metoo: number; reporter_code: string; reporter_name: string | null; duplicate_of: number | null; created_at: string; updated_at: string };
 const SEV_RANK: Record<Severity, number> = { blocker: 0, major: 1, minor: 2, polish: 3 };
 const OPEN = new Set<Status>(["new", "confirmed", "fixing"]);
 
@@ -13,14 +13,15 @@ export type Weekly = { title: string; detail: string; counts: { newThisWeek: num
 
 export async function buildWeekly(now = Date.now()): Promise<Weekly> {
   const [bugs, codes] = await Promise.all([
-    rest<Row[]>("tester_bugs?select=id,title,happened,status,severity,metoo,reporter_code,reporter_name,duplicate_of,created_at,updated_at&order=created_at.desc&limit=500"),
+    rest<Row[]>("tester_bugs?select=id,kind,title,happened,status,severity,metoo,reporter_code,reporter_name,duplicate_of,created_at,updated_at&order=created_at.desc&limit=500"),
     rest<{ code: string; name: string | null }[]>("tester_codes?select=code,name&active=is.true"),
   ]);
   const weekAgo = now - 7 * 864e5;
   const fresh = bugs.filter((b) => Date.parse(b.created_at) >= weekAgo);
   const fixed = bugs.filter((b) => (b.status === "fixed" || b.status === "live") && Date.parse(b.updated_at) >= weekAgo);
-  const open = bugs.filter((b) => OPEN.has(b.status) && !b.duplicate_of);
-  const top = [...open].sort((a, b) => SEV_RANK[a.severity] - SEV_RANK[b.severity] || b.metoo - a.metoo || b.id - a.id).slice(0, 5);
+  const open = bugs.filter((b) => OPEN.has(b.status) && !b.duplicate_of && b.kind !== "clear");
+  const clears = fresh.filter((b) => b.kind === "clear").length, ideas = fresh.filter((b) => b.kind === "idea").length;
+  const top = [...open].filter((b) => b.kind === "bug").sort((a, b) => SEV_RANK[a.severity] - SEV_RANK[b.severity] || b.metoo - a.metoo || b.id - a.id).slice(0, 5);
   const start = monthStart(new Date(now));
   const short = codes
     .map((c) => ({ name: c.name?.trim() || `Tester ${c.code.slice(-4)}`, n: bugs.filter((b) => b.reporter_code === c.code && Date.parse(b.created_at) >= start.getTime()).length }))
@@ -61,7 +62,7 @@ export async function buildWeekly(now = Date.now()): Promise<Weekly> {
   const lines = [
     read.summary || `${fresh.length} new report${fresh.length === 1 ? "" : "s"} this week, ${fixed.length} fixed.`,
     "",
-    `This week: ${fresh.length} new from ${((n) => `${n} tester${n === 1 ? "" : "s"}`)(new Set(fresh.map((b) => b.reporter_code)).size)}, ${fixed.length} fixed, ${open.length} still open.`,
+    `This week: ${fresh.length} new (${ideas} suggestion${ideas === 1 ? "" : "s"}, ${clears} "couldn't find a bug" check-in${clears === 1 ? "" : "s"}) from ${((n) => `${n} tester${n === 1 ? "" : "s"}`)(new Set(fresh.map((b) => b.reporter_code)).size)}, ${fixed.length} fixed, ${open.length} still open.`,
     "",
     "Top bugs",
     ...(top.length ? top.map((b) => `#${b.id} ${b.title} (${SEVERITY_LABEL[b.severity]}, ${b.metoo} me too, ${STATUS_LABEL[b.status]})`) : ["Nothing open."]),

@@ -1,12 +1,12 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { AREAS, PLATFORM_LABEL, PLATFORMS, SEVERITIES, SEVERITY_HINT, SEVERITY_LABEL, type Bug, type Platform, type Severity, type Shot } from "@/lib/testers/model";
+import { AREAS, KIND_LABEL, KINDS, PLATFORM_LABEL, PLATFORMS, SEVERITIES, SEVERITY_HINT, SEVERITY_LABEL, type Bug, type Kind, type Platform, type Severity, type Shot } from "@/lib/testers/model";
 import { call, guessDevice, words } from "./api";
 import { Icon, Sheet, StatusPill, SEVERITY_COLOR, cssVar } from "./ui";
 
 type Up = { key: string; preview: string; video: boolean; state: "up" | "done" | "err"; shot?: Shot; msg?: string };
-export type Prefill = Partial<{ title: string; happened: string; steps: string; expected: string; severity: Severity; area: string; platform: Platform; device: string }>;
-type Draft = { title: string; happened: string; steps: string; expected: string; platform: Platform; device: string; version: string; severity: Severity; area: string };
+export type Prefill = Partial<{ kind: Kind; title: string; happened: string; steps: string; expected: string; severity: Severity; area: string; platform: Platform; device: string }>;
+type Draft = { kind: Kind; title: string; happened: string; steps: string; expected: string; platform: Platform; device: string; version: string; severity: Severity; area: string };
 const DRAFT = "th_draft", DEVICE = "th_device";
 const ALLOWED = ["image/jpeg", "image/png", "image/webp", "video/mp4", "video/quicktime", "video/webm"];
 
@@ -30,7 +30,7 @@ export default function Report({ bugs, onClose, onDone, onOpen, onMetoo, prefill
 }) {
   const [d, setD] = useState<Draft>(() => {
     const g = guessDevice(), dev = load<{ platform: Platform; device: string; version: string }>(DEVICE);
-    return { title: "", happened: "", steps: "", expected: "", severity: "minor", area: "", platform: dev?.platform ?? g.platform, device: dev?.device ?? g.device, version: dev?.version ?? "", ...load<Partial<Draft>>(DRAFT),
+    return { kind: "bug", title: "", happened: "", steps: "", expected: "", severity: "minor", area: "", platform: dev?.platform ?? g.platform, device: dev?.device ?? g.device, version: dev?.version ?? "", ...load<Partial<Draft>>(DRAFT),
       // The helper's draft wins over a half finished one; empty fields never wipe what was typed.
       ...Object.fromEntries(Object.entries(prefill ?? {}).filter(([, v]) => typeof v === "string" && v.trim())) };
   });
@@ -72,7 +72,8 @@ export default function Report({ bugs, onClose, onDone, onOpen, onMetoo, prefill
     .sort((a, b) => b.n - a.n).slice(0, 3).map((x) => x.b);
 
   const uploading = ups.some((u) => u.state === "up");
-  const ready = d.title.trim().length >= 4 && d.happened.trim().length >= 4 && !uploading && !busy;
+  const bug = d.kind === "bug", clear = d.kind === "clear";
+  const ready = (clear || d.title.trim().length >= 4) && d.happened.trim().length >= 4 && !uploading && !busy;
 
   async function send() {
     if (!ready) return;
@@ -80,7 +81,7 @@ export default function Report({ bugs, onClose, onDone, onOpen, onMetoo, prefill
     setBusy(true); setErr("");
     try {
       const { id } = await call<{ id: number }>("bugs", { body: {
-        title: d.title, happened: d.happened, steps: d.steps, expected: d.expected, platform: d.platform,
+        kind: d.kind, title: d.title, happened: d.happened, steps: bug ? d.steps : "", expected: bug ? d.expected : "", platform: d.platform,
         device: d.device, app_version: d.version, severity: d.severity, area: d.area,
         shots: ups.filter((u) => u.state === "done").map((u) => u.shot),
       } });
@@ -91,17 +92,22 @@ export default function Report({ bugs, onClose, onDone, onOpen, onMetoo, prefill
   }
 
   return (
-    <Sheet title="Report a bug" onClose={onClose} foot={<>
+    <Sheet title={bug ? "Report a bug" : clear ? "Couldn't find a bug" : "Send a suggestion"} onClose={onClose} foot={<>
       <span className="msg">{err || (uploading ? "Uploading..." : "")}</span>
       <button className="th-btn gh sm" onClick={onClose}>Cancel</button>
       <button className="th-btn pri sm" disabled={!ready} onClick={send}>{busy ? "Sending..." : "Send report"}</button>
     </>}>
       <input ref={hp} className="th-hp" tabIndex={-1} autoComplete="off" aria-hidden="true" />
       <div className="th-f">
-        <label htmlFor="r-title">Title</label>
-        <input id="r-title" className="th-in" value={d.title} onChange={(e) => set({ title: e.target.value })} maxLength={140} placeholder="Short and specific, like Wedding popup shows twice" autoFocus />
+        <span className="th-lbl">What are you sending?<small>all three count toward your month</small></span>
+        <div className="th-seg">{KINDS.map((k) => <button key={k} type="button" aria-pressed={d.kind === k} onClick={() => set({ kind: k })}>{KIND_LABEL[k]}</button>)}</div>
       </div>
-      {dupes.length > 0 && (
+      <div className="th-f">
+        <label htmlFor="r-title">{clear ? "What did you play?" : "Title"}{clear && <small>optional</small>}</label>
+        <input id="r-title" className="th-in" value={d.title} onChange={(e) => set({ title: e.target.value })} maxLength={140}
+          placeholder={bug ? "Short and specific, like Wedding popup shows twice" : clear ? "Like A full life as a royal, birth to 80" : "Your idea in a few words"} autoFocus />
+      </div>
+      {bug && dupes.length > 0 && (
         <div className="th-dupes">
           <p>Already on the board?</p>
           {dupes.map((b) => (
@@ -114,9 +120,11 @@ export default function Report({ bugs, onClose, onDone, onOpen, onMetoo, prefill
         </div>
       )}
       <div className="th-f">
-        <label htmlFor="r-what">What happened</label>
-        <textarea id="r-what" className="th-in" rows={3} value={d.happened} onChange={(e) => set({ happened: e.target.value })} placeholder="Tell us what you saw." />
+        <label htmlFor="r-what">{bug ? "What happened" : clear ? "What you tested" : "Your suggestion"}</label>
+        <textarea id="r-what" className="th-in" rows={3} value={d.happened} onChange={(e) => set({ happened: e.target.value })}
+          placeholder={bug ? "Tell us what you saw." : clear ? "Which careers, packs, events or screens did you try, and for how long?" : "What would make the game better, and why?"} />
       </div>
+      {bug && <>
       <div className="th-f">
         <label htmlFor="r-steps">How to make it happen<small>optional</small></label>
         <textarea id="r-steps" className="th-in" rows={3} value={d.steps} onChange={(e) => set({ steps: e.target.value })} placeholder={"1. Opened the Relationships tab\n2. Tapped Propose\n3. ..."} />
@@ -125,6 +133,7 @@ export default function Report({ bugs, onClose, onDone, onOpen, onMetoo, prefill
         <label htmlFor="r-exp">What you expected<small>optional</small></label>
         <input id="r-exp" className="th-in" value={d.expected} onChange={(e) => set({ expected: e.target.value })} placeholder="What should have happened instead?" />
       </div>
+      </>}
       <div className="th-f">
         <span className="th-lbl">Screenshots or a recording<small>up to 6</small></span>
         <div className={`th-drop${over ? " over" : ""}`} role="button" tabIndex={0}
@@ -147,6 +156,7 @@ export default function Report({ bugs, onClose, onDone, onOpen, onMetoo, prefill
           </div>
         )}
       </div>
+      {bug && (
       <div className="th-f">
         <span className="th-lbl">How bad is it?</span>
         <div className="th-sevs">
@@ -157,6 +167,7 @@ export default function Report({ bugs, onClose, onDone, onOpen, onMetoo, prefill
           ))}
         </div>
       </div>
+      )}
       <div className="th-f">
         <span className="th-lbl">Device</span>
         <div className="th-seg">{PLATFORMS.map((p) => <button key={p} type="button" aria-pressed={d.platform === p} onClick={() => set({ platform: p })}>{PLATFORM_LABEL[p]}</button>)}</div>

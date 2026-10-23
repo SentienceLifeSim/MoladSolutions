@@ -27,6 +27,19 @@ export default function Hub() {
   const [filter, setFilter] = useState<BoardFilter>({ g: "all", mine: false });
   const [menu, setMenu] = useState(false), [msg, setMsg] = useState("");
   const msgT = useRef<number | undefined>(undefined);
+  // Light or dark: the tester's choice, remembered on this device; until they choose, their system's.
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+  useEffect(() => {
+    let saved: string | null = null;
+    try { saved = localStorage.getItem("th_theme"); } catch { /* private mode */ }
+    setTheme(saved === "dark" || saved === "light" ? saved : matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  }, []);
+  const flip = () => setTheme((t) => { const n = t === "dark" ? "light" : "dark"; try { localStorage.setItem("th_theme", n); } catch { /* private mode */ } return n; });
+  const themeBtn = (
+    <button type="button" className="th-theme" onClick={flip} aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}>
+      <Icon n={theme === "dark" ? "sun" : "moon"} /><span>{theme === "dark" ? "Light mode" : "Dark mode"}</span>
+    </button>
+  );
 
   const toast = useCallback((m: string) => { setMsg(m); clearTimeout(msgT.current); msgT.current = window.setTimeout(() => setMsg(""), 2600); }, []);
   const out = useCallback(() => { setMe(null); setBugs(null); setPosts(null); }, []);
@@ -75,22 +88,26 @@ export default function Hub() {
   }
   const posted = (p: Post) => { setPosts((all) => [p, ...(all ?? [])]); toast("Posted"); };
 
-  const sky = <div className="th-sky" aria-hidden="true"><i /><i /><i /></div>;
-  if (me === undefined) return <div className="th">{sky}</div>;
-  if (me === null) return <div className="th">{sky}<Gate onIn={setMe} /></div>;
+  if (me === undefined) return <div className="th" data-theme={theme} />;
+  if (me === null) return <div className="th" data-theme={theme}><div className="th-gatetheme">{themeBtn}</div><Gate onIn={setMe} /></div>;
 
   const current = open !== null ? bugs?.find((b) => b.id === open) : undefined;
   return (
-    <div className="th">
-      {sky}
-      <header className="th-head">
-        <div className="th-wrap">
-          <button className="th-brand" onClick={() => setTab("home")}>
-            <img src="/sentience-icon.png" alt="" /><span><b>SENTIENCE</b><small>Tester Hub</small></span>
-          </button>
-          <nav className="th-tabs">{TABS.map((t) => <button key={t.key} aria-current={tab === t.key ? "page" : undefined} onClick={() => setTab(t.key)}>{t.label}</button>)}</nav>
-          <div className="th-me">
-            <button onClick={() => setMenu((m) => !m)} aria-expanded={menu}><span className="th-av">{me.role === "owner" ? "S" : initial(me.name)}</span><span>{me.role === "owner" ? "Team" : me.name}</span></button>
+    <div className="th" data-theme={theme}>
+      <aside className="th-side">
+        <button className="th-brand" onClick={() => setTab("home")}><img src="/sentience-icon.png" alt="" /><span><b>Sentience</b><small>Tester Hub</small></span></button>
+        <nav className="th-nav">{TABS.map((t) => <button key={t.key} aria-current={tab === t.key ? "page" : undefined} onClick={() => setTab(t.key)}><Icon n={t.icon} />{t.key === "bugs" ? "Bug board" : t.label}</button>)}</nav>
+        <div className="th-sidefoot">
+          {themeBtn}
+          <div className="th-me"><span className="th-av">{me.role === "owner" ? "S" : initial(me.name)}</span><span><b>{me.role === "owner" ? "Team" : me.name}</b><button onClick={signOut}>Sign out</button></span></div>
+        </div>
+      </aside>
+      <div className="th-content">
+        <header className="th-head">
+          <button className="th-brand" onClick={() => setTab("home")}><img src="/sentience-icon.png" alt="" /><span><b>Sentience</b><small>Tester Hub</small></span></button>
+          {themeBtn}
+          <div style={{ position: "relative" }}>
+            <button className="th-av" style={{ border: 0 }} onClick={() => setMenu((m) => !m)} aria-expanded={menu} aria-label="Account">{me.role === "owner" ? "S" : initial(me.name)}</button>
             {menu && (
               <div className="th-menu" onMouseLeave={() => setMenu(false)}>
                 <p>Signed in as {me.role === "owner" ? "the team" : me.name}</p>
@@ -98,15 +115,15 @@ export default function Hub() {
               </div>
             )}
           </div>
-        </div>
-      </header>
-      <main className="th-main th-wrap">
-        {tab === "home" && <Home me={me} bugs={bugs} posts={posts} onReport={() => setReporting(true)} onOpen={openBug}
-          onBoard={(g, mine) => { setFilter({ g, mine: !!mine }); setTab("bugs"); }} onPosted={posted} onDeletePost={deletePost} />}
-        {tab === "bugs" && <Board bugs={bugs} filter={filter} setFilter={setFilter} onOpen={openBug} onReport={() => setReporting(true)} />}
-        {tab === "builds" && <Builds owner={me.role === "owner"} bugs={bugs} posts={posts} onOpen={openBug} onPosted={posted} onDeletePost={deletePost} />}
-        {tab === "guide" && <Guide />}
-      </main>
+        </header>
+        <main className="th-main th-wrap">
+          {tab === "home" && <Home me={me} bugs={bugs} posts={posts} onReport={(k) => { if (k && k !== "bug") setPrefill({ kind: k }); setReporting(true); }} onOpen={openBug}
+            onBoard={(g, mine) => { setFilter({ g, mine: !!mine }); setTab("bugs"); }} onPosted={posted} onDeletePost={deletePost} />}
+          {tab === "bugs" && <Board bugs={bugs} filter={filter} setFilter={setFilter} onOpen={openBug} onReport={() => setReporting(true)} />}
+          {tab === "builds" && <Builds owner={me.role === "owner"} bugs={bugs} posts={posts} onOpen={openBug} onPosted={posted} onDeletePost={deletePost} />}
+          {tab === "guide" && <Guide />}
+        </main>
+      </div>
       <nav className="th-bar">{TABS.map((t) => <button key={t.key} aria-current={tab === t.key ? "page" : undefined} onClick={() => setTab(t.key)}><Icon n={t.icon} />{t.label}</button>)}</nav>
 
       <Assist me={me} bugs={bugs} onDraft={(p) => { setOpen(null); setPrefill(p); setReporting(true); }} onMetoo={metoo} onChanged={refresh} toast={toast} />

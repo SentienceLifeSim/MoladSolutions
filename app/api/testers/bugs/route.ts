@@ -1,8 +1,8 @@
 import { rest, publicShotPrefix } from "@/lib/testers/db";
 import { who, json, denied } from "@/lib/testers/session";
-import { AREAS, PLATFORMS, SEVERITIES, SEVERITY_LABEL, PLATFORM_LABEL, type Bug, type Shot } from "@/lib/testers/model";
+import { AREAS, KINDS, KIND_LABEL, PLATFORMS, SEVERITIES, SEVERITY_LABEL, PLATFORM_LABEL, type Bug, type Kind, type Shot } from "@/lib/testers/model";
 
-const LIST = "id,title,happened,steps,expected,platform,device,app_version,severity,area,status,owner_note,duplicate_of,reporter_name,reporter_code,shots,metoo,comments,created_at,updated_at";
+const LIST = "id,kind,title,happened,steps,expected,platform,device,app_version,severity,area,status,owner_note,duplicate_of,reporter_name,reporter_code,shots,metoo,comments,created_at,updated_at";
 
 /** Every report, newest first, marked with what is yours and what you said "me too" to. */
 export async function GET(req: Request) {
@@ -27,11 +27,14 @@ export async function POST(req: Request) {
   const w = await who(req, true);
   if (!w) return denied();
   const b = (await req.json().catch(() => ({}))) as Record<string, unknown>;
-  const title = text(b.title, 140), happened = text(b.happened, 4000);
-  if (title.length < 4) return json({ error: "Give the bug a short title." }, 400);
-  if (happened.length < 4) return json({ error: "Tell us what happened." }, 400);
+  const kind: Kind = KINDS.includes(b.kind as never) ? (b.kind as Kind) : "bug";
+  const happened = text(b.happened, 4000);
+  let title = text(b.title, 140);
+  if (kind === "clear" && title.length < 4) title = "Played and couldn't find a bug";
+  if (title.length < 4) return json({ error: kind === "idea" ? "Give your suggestion a short title." : "Give the bug a short title." }, 400);
+  if (happened.length < 4) return json({ error: kind === "clear" ? "Tell us what you played and tested." : kind === "idea" ? "Tell us your idea." : "Tell us what happened." }, 400);
   const platform = PLATFORMS.includes(b.platform as never) ? (b.platform as string) : "ios";
-  const severity = SEVERITIES.includes(b.severity as never) ? (b.severity as string) : "minor";
+  const severity = kind === "bug" && SEVERITIES.includes(b.severity as never) ? (b.severity as string) : kind === "bug" ? "minor" : "polish";
   const area = AREAS.includes(b.area as string) ? (b.area as string) : null;
   const prefix = publicShotPrefix();
   const shots: Shot[] = (Array.isArray(b.shots) ? b.shots : [])
@@ -45,12 +48,12 @@ export async function POST(req: Request) {
     const [row] = await rest<Bug[]>("tester_bugs?select=id", {
       method: "POST", prefer: "return=representation",
       body: {
-        title, happened, steps: text(b.steps, 4000) || null, expected: text(b.expected, 2000) || null,
+        kind, title, happened, steps: text(b.steps, 4000) || null, expected: text(b.expected, 2000) || null,
         platform, device: text(b.device, 80) || null, app_version: text(b.app_version, 30) || null,
         severity, area, reporter_code: w.code, reporter_name: w.name, shots,
       },
     });
-    await notifyOwner(row.id, { title, happened, platform, severity, area, name: w.name, shots: shots.length });
+    await notifyOwner(row.id, { title, happened, platform, severity, area, name: w.name, shots: shots.length, kind });
     return json({ id: row.id });
   } catch {
     return json({ error: "Couldn't save your report. Try again in a moment." }, 500);
@@ -58,7 +61,7 @@ export async function POST(req: Request) {
 }
 
 /** An email to support for every new report, same sender as in-game feedback. Never blocks the tester. */
-async function notifyOwner(id: number, r: { title: string; happened: string; platform: string; severity: string; area: string | null; name: string; shots: number }) {
+async function notifyOwner(id: number, r: { title: string; happened: string; platform: string; severity: string; area: string | null; name: string; shots: number; kind: Kind }) {
   const key = process.env.RESEND_API_KEY;
   if (!key) return;
   try {
@@ -69,9 +72,9 @@ async function notifyOwner(id: number, r: { title: string; happened: string; pla
       body: JSON.stringify({
         from: "Sentience Testers <feedback@moladsolutions.com>",
         to: ["support@sublimelabs.tech"],
-        subject: `[Tester bug #${id}] ${SEVERITY_LABEL[r.severity as keyof typeof SEVERITY_LABEL]}: ${r.title}`,
+        subject: `[Tester bug #${id}] ${r.kind === "bug" ? SEVERITY_LABEL[r.severity as keyof typeof SEVERITY_LABEL] : KIND_LABEL[r.kind]}: ${r.title}`,
         text: [
-          `${r.name} reported a bug on ${PLATFORM_LABEL[r.platform as keyof typeof PLATFORM_LABEL]}${r.area ? `, in ${r.area}` : ""}.`,
+          `${r.name} sent ${r.kind === "bug" ? "a bug" : r.kind === "idea" ? "a suggestion" : "a check-in (couldn't find a bug)"} on ${PLATFORM_LABEL[r.platform as keyof typeof PLATFORM_LABEL]}${r.area ? `, in ${r.area}` : ""}.`,
           "", r.happened, "", `Screenshots: ${r.shots}`, "", `https://sublimelabs.tech/testers?bug=${id}`,
         ].join("\n"),
       }),

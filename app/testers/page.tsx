@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Orbitron } from "next/font/google";
+import { Instrument_Sans } from "next/font/google";
 import Hub from "./_parts/Hub";
 import "./testers.css";
 
-const orbitron = Orbitron({ variable: "--font-orbitron", subsets: ["latin"], weight: ["700"] });
+const instrument = Instrument_Sans({ variable: "--font-instrument", subsets: ["latin"], weight: ["400", "500", "600", "700"] });
 
 export const metadata: Metadata = {
   title: "Sentience Tester Hub | Sublime Labs",
@@ -12,5 +12,5 @@ export const metadata: Metadata = {
 };
 
 export default function TestersPage() {
-  return <div className={orbitron.variable}><Hub /></div>;
+  return <div className={instrument.variable}><Hub /></div>;
 }

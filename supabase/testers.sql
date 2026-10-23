@@ -64,3 +64,8 @@ insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_typ
 values ('tester-shots', 'tester-shots', true, 52428800,
         array['image/jpeg','image/png','image/webp','video/mp4','video/quicktime','video/webm'])
 on conflict (id) do nothing;
+
+-- 2026-10-23: a report is a bug, a suggestion (idea) or a "couldn't find a bug" check-in (clear).
+-- All three count toward a tester's monthly number.
+alter table tester_bugs add column if not exists kind text not null default 'bug';
+update tester_bugs set kind = 'idea' where id = 2 and title like 'Newborn options%';
