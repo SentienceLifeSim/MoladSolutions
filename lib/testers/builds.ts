@@ -31,7 +31,7 @@ export async function syncAppStore(dry = false): Promise<SyncResult> {
     body: { kind: "build", title, body, version, created_at: app.currentVersionReleaseDate ?? new Date().toISOString() },
   });
   const moved = await rest<{ id: number }[]>("tester_bugs?status=eq.fixed&select=id", {
-    method: "PATCH", prefer: "return=representation", body: { status: "live", updated_at: new Date().toISOString() },
+    method: "PATCH", prefer: "return=representation", body: { status: "live", fixed_in: version, updated_at: new Date().toISOString() },
   });
   return { version, posted: true, fixedToLive: moved.length };
 }

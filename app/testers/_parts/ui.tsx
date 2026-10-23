@@ -27,13 +27,14 @@ const P: Record<string, string> = {
   check: "M5 12.5l4.5 4.5L19 7",
   sun: "M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4",
   moon: "M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z",
+  retest: "M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7M8.5 12l2.5 2.5 4.5-5",
 };
 export function Icon({ n, className = "th-ico" }: { n: keyof typeof P | string; className?: string }) {
   return <svg className={className} viewBox="0 0 24 24" aria-hidden="true"><path d={P[n] ?? ""} /></svg>;
 }
 
 export const STATUS_COLOR: Record<Status, string> = {
-  new: "#818cf8", confirmed: "#fbbf24", fixing: "#c084fc", fixed: "#22d3ee", live: "#34d399", cant: "#9ca3af", wont: "#9ca3af", dup: "#9ca3af",
+  new: "#818cf8", confirmed: "#fbbf24", fixing: "#c084fc", fixed: "#22d3ee", live: "#34d399", verified: "#10b981", cant: "#9ca3af", wont: "#9ca3af", dup: "#9ca3af",
 };
 export const SEVERITY_COLOR: Record<Severity, string> = { blocker: "#f43f5e", major: "#fb923c", minor: "#facc15", polish: "#60a5fa" };
 

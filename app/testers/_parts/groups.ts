@@ -5,7 +5,7 @@ export const GROUPS = [
   { key: "all", label: "All", has: null },
   { key: "open", label: "Open", has: ["new", "confirmed"] },
   { key: "fixing", label: "Being fixed", has: ["fixing"] },
-  { key: "fixed", label: "Fixed", has: ["fixed", "live"] },
+  { key: "fixed", label: "Fixed", has: ["fixed", "live", "verified"] },
   { key: "closed", label: "Closed", has: ["cant", "wont", "dup"] },
 ] as const satisfies readonly { key: string; label: string; has: readonly Status[] | null }[];
 export type GroupKey = (typeof GROUPS)[number]["key"];
@@ -19,7 +19,7 @@ export const inGroup = (b: Bug, g: GroupKey) => {
 import { shownName } from "./api";
 
 export function finders(bugs: Bug[]) {
-  const real = new Set<Status>(["confirmed", "fixing", "fixed", "live"]);
+  const real = new Set<Status>(["confirmed", "fixing", "fixed", "live", "verified"]);
   const m = new Map<string, { name: string; n: number; total: number; me: boolean }>();
   for (const b of bugs) {
     const name = shownName(b.reporter_name);

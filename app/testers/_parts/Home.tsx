@@ -7,24 +7,27 @@ import BugRow from "./BugRow";
 import Composer from "./Composer";
 import Notes from "./Notes";
 import { Roster } from "./Month";
+import { waiting } from "./Retest";
 import type { Me } from "./Gate";
 
 type Props = {
-  me: Me; bugs: Bug[] | null; posts: Post[] | null;
+  me: Me; bugs: Bug[] | null; posts: Post[] | null; retestDates: string[]; onRetest: () => void;
   onReport: (kind?: Kind) => void; onOpen: (id: number) => void; onBoard: (g: GroupKey, mine?: boolean) => void;
   onPosted: (p: Post) => void; onDeletePost: (id: number) => void;
 };
 
 /** Home in the variation 3 layout: welcome, four summary tiles, recent reports with screenshots, a side column. */
-export default function Home({ me, bugs, posts, onReport, onOpen, onBoard, onPosted, onDeletePost }: Props) {
+export default function Home({ me, bugs, posts, retestDates, onRetest, onReport, onOpen, onBoard, onPosted, onDeletePost }: Props) {
   const owner = me.role === "owner";
   const all = bugs ?? [];
   const work = all.filter((b) => b.kind !== "clear"); // check-ins never sit in the open counts
   const count = (g: GroupKey) => work.filter((b) => inGroup(b, g)).length;
   const breaking = work.filter((b) => b.kind === "bug" && b.severity === "blocker" && inGroup(b, "open")).length;
   const start = monthStart();
-  const monthN = all.filter((b) => b.mine && new Date(b.created_at) >= start).length;
-  const fixedMonth = all.filter((b) => (b.status === "fixed" || b.status === "live") && new Date(b.updated_at) >= start).length;
+  // Reports and retests both count toward the month.
+  const monthN = all.filter((b) => b.mine && new Date(b.created_at) >= start).length + retestDates.filter((d) => new Date(d) >= start).length;
+  const fixedMonth = all.filter((b) => (b.status === "fixed" || b.status === "live" || b.status === "verified") && new Date(b.updated_at) >= start).length;
+  const toCheck = owner ? 0 : waiting(bugs).length;
   const daysLeft = Math.max(0, Math.ceil((monthEnd().getTime() + 864e5 - Date.now()) / 864e5));
   const focus = (posts ?? []).filter((p) => p.kind === "focus").slice(0, 4);
   const build = (posts ?? []).find((p) => p.kind === "build");
@@ -47,6 +50,14 @@ export default function Home({ me, bugs, posts, onReport, onOpen, onBoard, onPos
           <button className="th-btn pri" onClick={() => onReport("bug")}><Icon n="plus" />Report a bug</button>
         </div>
       </section>
+
+      {toCheck > 0 && (
+        <button className="th-retest-cta" onClick={onRetest} style={{ width: "100%", textAlign: "left", cursor: "pointer" }}>
+          <Icon n="retest" />
+          <div><b>{toCheck} {toCheck === 1 ? "fix is" : "fixes are"} ready to retest</b><p>{toCheck === 1 ? "Check it in your own game. It counts toward your month." : "Check them in your own game. Each one counts toward your month."}</p></div>
+          <span className="th-btn sm" style={{ flex: "none" }}>Retest</span>
+        </button>
+      )}
 
       <div className="th-stats">
         <button className="th-stat" onClick={() => onBoard("open")}><span>Open</span><b>{n(count("open"))}</b><small>{breaking ? `${breaking} game breaking` : "Nothing game breaking"}</small></button>

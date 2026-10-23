@@ -1,9 +1,9 @@
 // Shared by the API and the page: the words and choices a bug can have.
-export const STATUSES = ["new", "confirmed", "fixing", "fixed", "live", "cant", "wont", "dup"] as const;
+export const STATUSES = ["new", "confirmed", "fixing", "fixed", "live", "verified", "cant", "wont", "dup"] as const;
 export type Status = (typeof STATUSES)[number];
 export const STATUS_LABEL: Record<Status, string> = {
   new: "New", confirmed: "Confirmed", fixing: "Being fixed", fixed: "Fixed, next build",
-  live: "Fixed and live", cant: "Can't reproduce", wont: "Won't fix", dup: "Duplicate",
+  live: "Fixed and live", verified: "Verified fixed", cant: "Can't reproduce", wont: "Won't fix", dup: "Duplicate",
 };
 // A report is a bug, an improvement, or a "couldn't find a bug" check-in. All three count toward the month.
 export const KINDS = ["bug", "idea", "clear"] as const;
@@ -28,12 +28,22 @@ export type Bug = {
   platform: Platform; device: string | null; app_version: string | null; severity: Severity; area: string | null;
   status: Status; owner_note: string | null; duplicate_of: number | null; reporter_name: string | null;
   shots: Shot[]; metoo: number; comments: number; created_at: string; updated_at: string;
-  mine?: boolean; iMetoo?: boolean;
+  retest_ok: number; retest_still: number; fixed_in: string | null; fixed_at: string | null;
+  mine?: boolean; iMetoo?: boolean; myRetest?: { result: RetestResult; at: string } | null;
 };
+// Ready to Retest (owner 2026-10-23): testers check a fixed bug in their own game.
+export const RETEST_RESULTS = ["fixed", "still"] as const;
+export type RetestResult = (typeof RETEST_RESULTS)[number];
+export type Retest = { id: number; name: string | null; result: RetestResult; note: string | null; shots: Shot[]; device: string | null; created_at: string; mine?: boolean };
+/** Bugs testers can check: fixed in the store version, or fixed for the next build (TestFlight). */
+export const RETESTABLE: readonly Status[] = ["live", "fixed"];
+/** This many "Fixed for me" answers marks a report Verified fixed on its own. */
+export const VERIFY_AT = 2;
 export type Comment = { id: number; name: string | null; owner: boolean; body: string; created_at: string; mine?: boolean };
 export type Post = { id: number; kind: "focus" | "build"; title: string; body: string | null; version: string | null; created_at: string };
 
 // Owner rule (2026-10-23): at least this many new reports per calendar month (UTC), Me too doesn't count.
+// Retests count too (owner 2026-10-23).
 export const MONTHLY_MIN = 2;
 export const monthStart = (d = new Date()) => new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1));
 export const monthName = (d = new Date()) => d.toLocaleDateString("en-US", { month: "long", timeZone: "UTC" });

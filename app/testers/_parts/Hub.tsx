@@ -7,6 +7,7 @@ import Gate, { type Me } from "./Gate";
 import Home from "./Home";
 import Board, { type BoardFilter } from "./Board";
 import Builds from "./Builds";
+import Retest, { waiting } from "./Retest";
 import Guide from "./Guide";
 import Report from "./Report";
 import Detail from "./Detail";
@@ -15,7 +16,7 @@ import type { Prefill } from "./Report";
 
 const TABS = [
   { key: "home", label: "Home", icon: "home" }, { key: "bugs", label: "Bugs", icon: "bug" },
-  { key: "builds", label: "Builds", icon: "build" }, { key: "guide", label: "Guide", icon: "guide" },
+  { key: "retest", label: "Retest", icon: "retest" }, { key: "builds", label: "Builds", icon: "build" }, { key: "guide", label: "Guide", icon: "guide" },
 ] as const;
 type Tab = (typeof TABS)[number]["key"];
 
@@ -23,6 +24,7 @@ export default function Hub() {
   const [me, setMe] = useState<Me | null | undefined>(undefined);
   const [tab, setTabState] = useState<Tab>("home");
   const [bugs, setBugs] = useState<Bug[] | null>(null), [posts, setPosts] = useState<Post[] | null>(null);
+  const [retestDates, setRetestDates] = useState<string[]>([]);
   const [open, setOpen] = useState<number | null>(null), [reporting, setReporting] = useState(false), [prefill, setPrefill] = useState<Prefill | null>(null);
   const [filter, setFilter] = useState<BoardFilter>({ g: "all", mine: false });
   const [menu, setMenu] = useState(false), [msg, setMsg] = useState("");
@@ -49,8 +51,8 @@ export default function Hub() {
 
   const refresh = useCallback(async () => {
     try {
-      const [b, p] = await Promise.all([call<{ bugs: Bug[] }>("bugs"), call<{ posts: Post[] }>("posts")]);
-      setBugs(b.bugs); setPosts(p.posts);
+      const [b, p] = await Promise.all([call<{ bugs: Bug[]; retestDates?: string[] }>("bugs"), call<{ posts: Post[] }>("posts")]);
+      setBugs(b.bugs); setPosts(p.posts); setRetestDates(b.retestDates ?? []);
     } catch (e) { guard(e); }
   }, [guard]);
 
@@ -74,6 +76,12 @@ export default function Hub() {
   const openBug = (id: number) => { setReporting(false); setOpen(id); };
   const closeBug = () => { setOpen(null); if (location.search) history.replaceState(null, "", location.pathname + location.hash); };
   const update = (b: Bug) => setBugs((all) => all?.map((x) => (x.id === b.id ? { ...x, ...b } : x)) ?? all);
+  // A retest answer: update the report and count it toward the month right away (a changed answer counts once).
+  const answered = (b: Bug) => {
+    const before = bugs?.find((x) => x.id === b.id)?.myRetest;
+    update(b);
+    if (b.myRetest && !before) setRetestDates((d) => [...d, b.myRetest!.at]);
+  };
 
   async function metoo(b: Bug) {
     const on = !b.iMetoo;
@@ -92,11 +100,13 @@ export default function Hub() {
   if (me === null || me.needName) return <div className="th" data-theme={theme}><div className="th-gatetheme">{themeBtn}</div><Gate key={me ? "name" : "code"} askName={!!me?.needName} onIn={setMe} /></div>;
 
   const current = open !== null ? bugs?.find((b) => b.id === open) : undefined;
+  const toCheck = me.role === "owner" ? 0 : waiting(bugs).length;
+  const badge = (k: Tab) => (k === "retest" && toCheck > 0 ? <span className="th-badge">{toCheck}</span> : null);
   return (
     <div className="th" data-theme={theme}>
       <aside className="th-side">
         <button className="th-brand" onClick={() => setTab("home")}><img src="/sentience-icon.png" alt="" /><span><b>Sentience</b><small>Tester Hub</small></span></button>
-        <nav className="th-nav">{TABS.map((t) => <button key={t.key} aria-current={tab === t.key ? "page" : undefined} onClick={() => setTab(t.key)}><Icon n={t.icon} />{t.key === "bugs" ? "Bug board" : t.label}</button>)}</nav>
+        <nav className="th-nav">{TABS.map((t) => <button key={t.key} aria-current={tab === t.key ? "page" : undefined} onClick={() => setTab(t.key)}><Icon n={t.icon} />{t.key === "bugs" ? "Bug board" : t.key === "retest" ? "Ready to retest" : t.label}{badge(t.key)}</button>)}</nav>
         <div className="th-sidefoot">
           {themeBtn}
           <div className="th-me"><span className="th-av">{me.role === "owner" ? "S" : initial(me.name)}</span><span><b>{me.role === "owner" ? "Team" : me.name}</b><button onClick={signOut}>Sign out</button></span></div>
@@ -117,19 +127,20 @@ export default function Hub() {
           </div>
         </header>
         <main className="th-main th-wrap">
-          {tab === "home" && <Home me={me} bugs={bugs} posts={posts} onReport={(k) => { if (k && k !== "bug") setPrefill({ kind: k }); setReporting(true); }} onOpen={openBug}
+          {tab === "home" && <Home me={me} bugs={bugs} posts={posts} retestDates={retestDates} onRetest={() => setTab("retest")} onReport={(k) => { if (k && k !== "bug") setPrefill({ kind: k }); setReporting(true); }} onOpen={openBug}
             onBoard={(g, mine) => { setFilter({ g, mine: !!mine }); setTab("bugs"); }} onPosted={posted} onDeletePost={deletePost} />}
           {tab === "bugs" && <Board bugs={bugs} filter={filter} setFilter={setFilter} onOpen={openBug} onReport={() => setReporting(true)} />}
+          {tab === "retest" && <Retest bugs={bugs} owner={me.role === "owner"} onOpen={openBug} onAnswered={answered} toast={toast} />}
           {tab === "builds" && <Builds owner={me.role === "owner"} bugs={bugs} posts={posts} onOpen={openBug} onPosted={posted} onDeletePost={deletePost} />}
           {tab === "guide" && <Guide />}
         </main>
       </div>
-      <nav className="th-bar">{TABS.map((t) => <button key={t.key} aria-current={tab === t.key ? "page" : undefined} onClick={() => setTab(t.key)}><Icon n={t.icon} />{t.label}</button>)}</nav>
+      <nav className="th-bar">{TABS.map((t) => <button key={t.key} aria-current={tab === t.key ? "page" : undefined} onClick={() => setTab(t.key)}><Icon n={t.icon} />{t.label}{badge(t.key)}</button>)}</nav>
 
       <Assist me={me} bugs={bugs} onDraft={(p) => { setOpen(null); setPrefill(p); setReporting(true); }} onMetoo={metoo} onChanged={refresh} toast={toast} />
       {reporting && <Report bugs={bugs ?? []} prefill={prefill} onClose={() => { setReporting(false); setPrefill(null); }} onOpen={openBug} onMetoo={metoo}
         onDone={async (id) => { setReporting(false); setPrefill(null); toast("Thank you. Your report is on the board."); await refresh(); setOpen(id); }} />}
-      {current && <Detail bug={current} me={me} onClose={closeBug} onChange={update} onOpen={openBug} onMetoo={metoo} toast={toast}
+      {current && <Detail bug={current} me={me} onClose={closeBug} onChange={update} onAnswered={answered} onOpen={openBug} onMetoo={metoo} toast={toast}
         onDeleted={(id) => { setBugs((all) => all?.filter((b) => b.id !== id) ?? all); closeBug(); toast("Deleted"); }} />}
       {msg && <div className="th-toast" role="status">{msg}</div>}
     </div>

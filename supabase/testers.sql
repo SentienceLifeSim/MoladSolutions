@@ -73,3 +73,25 @@ update tester_bugs set kind = 'idea' where id = 2 and title like 'Newborn option
 -- 2026-10-23: the name a tester gives on their first Tester Hub sign in (codes only carry "Tester 06").
 alter table tester_codes add column if not exists hub_name text;
 alter table tester_codes add column if not exists hub_seen_at timestamptz;
+
+-- 2026-10-23: Ready to Retest. Testers check a fixed bug in their own game and say "Fixed for me"
+-- or "Still happening". One answer per tester per report (a later answer replaces it).
+create table if not exists tester_bug_retests (
+  id         bigserial primary key,
+  bug_id     bigint not null references tester_bugs(id) on delete cascade,
+  code       text not null,
+  name       text,
+  result     text not null,
+  note       text,
+  shots      jsonb not null default '[]'::jsonb,
+  device     text,
+  created_at timestamptz not null default now(),
+  unique (bug_id, code)
+);
+alter table tester_bug_retests enable row level security;
+alter table tester_bugs add column if not exists retest_ok integer not null default 0;
+alter table tester_bugs add column if not exists retest_still integer not null default 0;
+alter table tester_bugs add column if not exists fixed_in text;
+-- When the current fix landed; only retests after it count (a reopened bug starts over).
+-- (existing fixed and live reports were backfilled with fixed_at = updated_at)
+alter table tester_bugs add column if not exists fixed_at timestamptz;

@@ -4,9 +4,10 @@ import { KIND_LABEL, PLATFORM_LABEL, STATUSES, STATUS_LABEL, type Bug, type Comm
 import { ago, call, initial, shownName } from "./api";
 import { Icon, Lightbox, Sev, Sheet, StatusPill, STATUS_COLOR, cssVar } from "./ui";
 import type { Me } from "./Gate";
+import { RetestAsk, RetestList } from "./Retest";
 
-export default function Detail({ bug, me, onClose, onChange, onDeleted, onOpen, onMetoo, toast }: {
-  bug: Bug; me: Me; onClose: () => void; onChange: (b: Bug) => void; onDeleted: (id: number) => void;
+export default function Detail({ bug, me, onClose, onChange, onAnswered, onDeleted, onOpen, onMetoo, toast }: {
+  bug: Bug; me: Me; onClose: () => void; onChange: (b: Bug) => void; onAnswered: (b: Bug) => void; onDeleted: (id: number) => void;
   onOpen: (id: number) => void; onMetoo: (b: Bug) => void; toast: (m: string) => void;
 }) {
   const owner = me.role === "owner";
@@ -19,7 +20,7 @@ export default function Detail({ bug, me, onClose, onChange, onDeleted, onOpen, 
     setCmts(null);
     call<{ comments: Comment[] }>(`bugs/${bug.id}`).then((r) => live && setCmts(r.comments)).catch(() => live && setCmts([]));
     return () => { live = false; };
-  }, [bug.id]);
+  }, [bug.id, bug.comments]);
   useEffect(() => { setNote(bug.owner_note ?? ""); setDup(bug.duplicate_of ? String(bug.duplicate_of) : ""); }, [bug.id, bug.owner_note, bug.duplicate_of]);
 
   async function post() {
@@ -33,8 +34,10 @@ export default function Detail({ bug, me, onClose, onChange, onDeleted, onOpen, 
   }
   async function patch(p: { status?: Status; owner_note?: string; duplicate_of?: number | null }) {
     try {
-      await call(`bugs/${bug.id}`, { method: "PATCH", body: p });
-      onChange({ ...bug, ...p, owner_note: p.owner_note !== undefined ? p.owner_note.trim() || null : bug.owner_note });
+      const r = await call<{ fixed_in?: string | null; fixed_at?: string }>(`bugs/${bug.id}`, { method: "PATCH", body: p });
+      // A new fix starts retesting over, so the server's fix date and build come back with it.
+      const fix = r.fixed_at ? { fixed_at: r.fixed_at, retest_ok: 0, retest_still: 0, myRetest: null } : {};
+      onChange({ ...bug, ...p, ...fix, ...(r.fixed_in !== undefined ? { fixed_in: r.fixed_in } : {}), owner_note: p.owner_note !== undefined ? p.owner_note.trim() || null : bug.owner_note });
       toast("Saved");
     } catch (e) { toast((e as Error).message); }
   }
@@ -81,6 +84,14 @@ export default function Detail({ bug, me, onClose, onChange, onDeleted, onOpen, 
         <span className="th-mut" style={{ fontSize: 14 }}>{bug.metoo === 0 ? "Seeing this as well? Let the team know." : `${bug.metoo} ${bug.metoo === 1 ? "tester sees" : "testers see"} this too`}</span>
       </div>}
       {bug.mine && bug.metoo > 0 && <p className="th-mut" style={{ margin: 0, fontSize: 14 }}>{bug.metoo} {bug.metoo === 1 ? "tester sees" : "testers see"} this too.</p>}
+
+      {!owner && bug.kind === "bug" && (bug.status === "live" || bug.status === "fixed") && (
+        <div className="th-card" style={{ display: "flex", flexDirection: "column", gap: 12, boxShadow: "none" }}>
+          <b style={{ fontSize: 15 }}>Is it fixed for you?</b>
+          <RetestAsk bug={bug} onAnswered={onAnswered} toast={toast} />
+        </div>
+      )}
+      <RetestList bug={bug} />
 
       {owner && (
         <div className="th-own">

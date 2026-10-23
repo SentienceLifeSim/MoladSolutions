@@ -1,21 +1,30 @@
 import { rest, publicShotPrefix } from "@/lib/testers/db";
 import { who, json, denied } from "@/lib/testers/session";
+import { current } from "@/lib/testers/retest";
 import { AREAS, KINDS, KIND_LABEL, PLATFORMS, SEVERITIES, SEVERITY_LABEL, PLATFORM_LABEL, type Bug, type Kind, type Shot } from "@/lib/testers/model";
 
-const LIST = "id,kind,title,happened,steps,expected,platform,device,app_version,severity,area,status,owner_note,duplicate_of,reporter_name,reporter_code,shots,metoo,comments,created_at,updated_at";
+const LIST = "id,kind,title,happened,steps,expected,platform,device,app_version,severity,area,status,owner_note,duplicate_of,reporter_name,reporter_code,shots,metoo,comments,created_at,updated_at,retest_ok,retest_still,fixed_in,fixed_at";
 
-/** Every report, newest first, marked with what is yours and what you said "me too" to. */
+/** Every report, newest first, marked with what is yours, what you said "me too" to, and your retest answer. */
 export async function GET(req: Request) {
   const w = await who(req, true);
   if (!w) return denied();
   try {
-    const [rows, mine] = await Promise.all([
+    const code = encodeURIComponent(w.code);
+    const [rows, mine, tests] = await Promise.all([
       rest<(Bug & { reporter_code: string })[]>(`tester_bugs?select=${LIST}&order=created_at.desc&limit=1000`),
-      rest<{ bug_id: number }[]>(`tester_bug_metoo?select=bug_id&code=eq.${encodeURIComponent(w.code)}`),
+      rest<{ bug_id: number }[]>(`tester_bug_metoo?select=bug_id&code=eq.${code}`),
+      rest<{ bug_id: number; result: "fixed" | "still"; created_at: string }[]>(`tester_bug_retests?select=bug_id,result,created_at&code=eq.${code}`),
     ]);
     const me = new Set(mine.map((m) => m.bug_id));
-    const bugs = rows.map(({ reporter_code, ...b }) => ({ ...b, mine: reporter_code === w.code, iMetoo: me.has(b.id) }));
-    return json({ bugs });
+    const tested = new Map(tests.map((t) => [t.bug_id, t]));
+    const bugs = rows.map(({ reporter_code, ...b }) => {
+      const t = tested.get(b.id);
+      return { ...b, mine: reporter_code === w.code, iMetoo: me.has(b.id), myRetest: t && current(b, t.created_at) ? { result: t.result, at: t.created_at } : null };
+    });
+    // Retests count toward the month even after a reopen, so send their dates on their own.
+    const retestDates = tests.map((t) => t.created_at);
+    return json({ bugs, retestDates });
   } catch {
     return json({ error: "Couldn't load the bug board." }, 500);
   }

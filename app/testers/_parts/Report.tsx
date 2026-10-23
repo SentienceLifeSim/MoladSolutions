@@ -14,7 +14,7 @@ function load<T>(k: string): T | null { try { return JSON.parse(localStorage.get
 function save(k: string, v: unknown) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* private mode */ } }
 
 /** HEIC and other image types become JPEG in the browser, so every screenshot can be shown on the board. */
-async function normalize(f: File): Promise<File> {
+export async function normalize(f: File): Promise<File> {
   if (ALLOWED.includes(f.type)) return f;
   if (!f.type.startsWith("image/") && !/\.hei[cf]$/i.test(f.name)) throw new Error("Screenshots or screen recordings only.");
   const bmp = await createImageBitmap(f).catch(() => { throw new Error("That image type can't be read here. Try a PNG or JPEG."); });

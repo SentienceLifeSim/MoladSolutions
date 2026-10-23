@@ -7,7 +7,8 @@ const MEANS: Record<Status, string> = {
   confirmed: "The team can see it happening too. It's on the list.",
   fixing: "Someone is working on it right now.",
   fixed: "Fixed. It goes out with the next update.",
-  live: "The fix is in the version you can download today.",
+  live: "The fix is in the version you can download today. Check it on the Retest page.",
+  verified: "Testers checked the fix in their own games and it worked.",
   cant: "We couldn't make it happen. More detail or a recording helps.",
   wont: "Working as intended, or not something we'll change.",
   dup: "Already on the board. Your Me too is counted there.",
@@ -26,7 +27,8 @@ export default function Guide() {
           <ul>
             <li>Send at least <strong>{MONTHLY_MIN} reports each calendar month</strong>. A report can be a <strong>bug</strong>, an <strong>improvement</strong>, or a <strong>Couldn&apos;t find a bug</strong> check-in that says what you played and tested. Your Home page shows how many you have so far.</li>
             <li><strong>Bugs come first.</strong> Finding bugs is the most important part of testing, so please hunt for them before sending improvements. Improvements will be prioritized once all bugs are squashed.</li>
-            <li>Only your own new reports count. Me too and comments are welcome, but they don&apos;t count toward your number.</li>
+            <li>Retests count too. On the <strong>Retest</strong> page, try a fixed bug in your own game and tap <strong>Fixed for me</strong> or <strong>Still happening</strong>. Each fix you check counts once.</li>
+            <li>Me too and comments are welcome, but they don&apos;t count toward your number.</li>
             <li>Testers who send fewer than {MONTHLY_MIN} reports in a month will be removed from the program, and their tester access will end.</li>
           </ul>
         </div>
