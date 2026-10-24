@@ -12,12 +12,15 @@ import Guide from "./Guide";
 import Report from "./Report";
 import Detail from "./Detail";
 import Assist from "./Assist";
+import PlayerBugs from "./PlayerBugs";
 import type { Prefill } from "./Report";
 
 const TABS = [
   { key: "home", label: "Home", icon: "home" }, { key: "bugs", label: "Bugs", icon: "bug" },
   { key: "retest", label: "Retest", icon: "retest" }, { key: "builds", label: "Builds", icon: "build" }, { key: "guide", label: "Guide", icon: "guide" },
+  { key: "players", label: "Players", icon: "flag" },
 ] as const;
+const OWNER_ONLY: readonly string[] = ["players"];
 type Tab = (typeof TABS)[number]["key"];
 
 export default function Hub() {
@@ -101,12 +104,15 @@ export default function Hub() {
 
   const current = open !== null ? bugs?.find((b) => b.id === open) : undefined;
   const toCheck = me.role === "owner" ? 0 : waiting(bugs).length;
+  // Players reported bugs is the team's own list, never shown to testers.
+  const tabs = TABS.filter((t) => me.role === "owner" || !OWNER_ONLY.includes(t.key));
+  if (!tabs.some((t) => t.key === tab)) setTabState("home");
   const badge = (k: Tab) => (k === "retest" && toCheck > 0 ? <span className="th-badge">{toCheck}</span> : null);
   return (
     <div className="th" data-theme={theme}>
       <aside className="th-side">
         <button className="th-brand" onClick={() => setTab("home")}><img src="/sentience-icon.png" alt="" /><span><b>Sentience</b><small>Tester Hub</small></span></button>
-        <nav className="th-nav">{TABS.map((t) => <button key={t.key} aria-current={tab === t.key ? "page" : undefined} onClick={() => setTab(t.key)}><Icon n={t.icon} />{t.key === "bugs" ? "Bug board" : t.key === "retest" ? "Ready to retest" : t.label}{badge(t.key)}</button>)}</nav>
+        <nav className="th-nav">{tabs.map((t) => <button key={t.key} aria-current={tab === t.key ? "page" : undefined} onClick={() => setTab(t.key)}><Icon n={t.icon} />{t.key === "bugs" ? "Bug board" : t.key === "retest" ? "Ready to retest" : t.key === "players" ? "Players reported bugs" : t.label}{badge(t.key)}</button>)}</nav>
         <div className="th-sidefoot">
           {themeBtn}
           <div className="th-me"><span className="th-av">{me.role === "owner" ? "S" : initial(me.name)}</span><span><b>{me.role === "owner" ? "Team" : me.name}</b><button onClick={signOut}>Sign out</button></span></div>
@@ -133,9 +139,10 @@ export default function Hub() {
           {tab === "retest" && <Retest bugs={bugs} owner={me.role === "owner"} onOpen={openBug} onAnswered={answered} toast={toast} />}
           {tab === "builds" && <Builds owner={me.role === "owner"} bugs={bugs} posts={posts} onOpen={openBug} onPosted={posted} onDeletePost={deletePost} />}
           {tab === "guide" && <Guide />}
+          {tab === "players" && me.role === "owner" && <PlayerBugs onSignedOut={out} toast={toast} />}
         </main>
       </div>
-      <nav className="th-bar">{TABS.map((t) => <button key={t.key} aria-current={tab === t.key ? "page" : undefined} onClick={() => setTab(t.key)}><Icon n={t.icon} />{t.label}{badge(t.key)}</button>)}</nav>
+      <nav className="th-bar" style={{ gridTemplateColumns: `repeat(${tabs.length},1fr)` }}>{tabs.map((t) => <button key={t.key} aria-current={tab === t.key ? "page" : undefined} onClick={() => setTab(t.key)}><Icon n={t.icon} />{t.label}{badge(t.key)}</button>)}</nav>
 
       <Assist me={me} bugs={bugs} onDraft={(p) => { setOpen(null); setPrefill(p); setReporting(true); }} onMetoo={metoo} onChanged={refresh} toast={toast} />
       {reporting && <Report bugs={bugs ?? []} prefill={prefill} onClose={() => { setReporting(false); setPrefill(null); }} onOpen={openBug} onMetoo={metoo}

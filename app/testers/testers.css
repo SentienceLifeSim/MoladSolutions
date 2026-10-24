@@ -432,3 +432,29 @@ select.th-in{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xml
 .th-rt-done .th-link{color:var(--acc)}
 .th-rt-tally .th-dim{font-weight:600}
 .th-rt-tally .th-dim~.th-dim{font-weight:500}
+
+/* Players reported bugs (owner only) */
+.th-pb-lvl{margin-top:22px}
+.th-pb-lvl h2{display:flex;align-items:center;gap:8px;margin:0 0 10px;font-size:13px;font-weight:500;color:var(--mut)}
+.th-pb-lvl h2 span{font-weight:700;color:var(--lv)}
+.th-pb-lvl h2 b{margin-left:auto;font-weight:600;color:var(--dim);font-variant-numeric:tabular-nums}
+.th-pb-lvl.lv-critical{--lv:var(--danger)}
+.th-pb-lvl.lv-high{--lv:#d9822b}
+.th-pb-lvl.lv-medium{--lv:#b58a00}
+.th-pb-lvl.lv-low{--lv:var(--acc)}
+.th-pb{display:flex;flex-direction:column;gap:10px;border-left:3px solid var(--lv)}
+.th-pb.done{opacity:.6;border-left-color:var(--ok)}
+.th-pb-top{display:flex;gap:12px;align-items:flex-start}
+.th-pb-rank{min-width:22px;font-size:13px;font-weight:600;color:var(--dim);font-variant-numeric:tabular-nums;padding-top:2px}
+.th-pb-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+.th-pb-main h3{margin:0;font-size:15.5px;font-weight:600;line-height:1.35}
+.th-pb.done h3{text-decoration:line-through;text-decoration-color:var(--dim)}
+.th-pb-main p{margin:0;font-size:14px;line-height:1.5;color:var(--mut)}
+.th-pb-main p.th-pb-cause{color:var(--acc)}
+.th-pb-fixed{color:var(--ok);font-weight:600}
+.th-pb-check{flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;border:1.5px solid var(--line2);background:none;color:transparent;cursor:pointer}
+.th-pb-check:hover{border-color:var(--ok);color:var(--ok)}
+.th-pb-check.on{background:var(--ok);border-color:var(--ok);color:#fff}
+.th-pb-more{align-self:flex-start;border:0;background:none;padding:0;font-size:13px;font-weight:600;color:var(--acc);cursor:pointer}
+.th-pb-q{margin:0;padding:8px 12px;border-left:2px solid var(--line2);background:var(--sunk);border-radius:0 10px 10px 0;font-size:14px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;display:flex;flex-direction:column;gap:4px}
+.th-pb-q span{font-size:12px;color:var(--dim)}
