@@ -4,9 +4,6 @@ import { KIND_LABEL, PLATFORM_LABEL } from "@/lib/testers/model";
 import { ago, shownName } from "./api";
 import { Icon, StatusPill, Sev } from "./ui";
 
-// Only the owner's board carries urgency (the server never sends it to testers).
-const URGENCY_TEXT = { urgent: "Urgent", high: "High", normal: "Normal", low: "Low" } as const;
-
 /** Owner only: "Mentioned twice", and whether players reported it in the live game too. */
 function dupe(b: Bug) {
   const t = b.sameTesters?.length ?? 0, p = b.samePlayers?.length ?? 0;
@@ -30,7 +27,6 @@ export default function BugRow({ b, onOpen }: { b: Bug; onOpen: (id: number) => 
         <span className="tp">
           <span className="tt"><span>#{b.id}</span>{b.title}</span>
           <span className="th-pills">
-            {b.urgency && <span className={`th-urg u-${b.urgency}`} title={b.urgencyWhy}>{URGENCY_TEXT[b.urgency]}</span>}
             <StatusPill s={b.status} />
           </span>
         </span>
