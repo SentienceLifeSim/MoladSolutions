@@ -32,7 +32,11 @@ export default function Home({ me, bugs, posts, retestDates, onRetest, onReport,
   const focus = (posts ?? []).filter((p) => p.kind === "focus").slice(0, 4);
   const build = (posts ?? []).find((p) => p.kind === "build");
   const top = finders(all);
-  const recent = owner ? all.filter((b) => b.status === "new" && b.kind !== "clear") : all.filter((b) => b.kind !== "clear");
+  // The owner's list puts the most urgent first (Claude's grade), newest first within each.
+  const URG = { urgent: 0, high: 1, normal: 2, low: 3 } as const;
+  const recent = owner
+    ? all.filter((b) => b.status === "new" && b.kind !== "clear").sort((a, z) => (URG[a.urgency ?? "normal"] - URG[z.urgency ?? "normal"]) || z.id - a.id)
+    : all.filter((b) => b.kind !== "clear");
   const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
   const n = (v: number) => (bugs ? v : "·");
 
@@ -41,7 +45,7 @@ export default function Home({ me, bugs, posts, retestDates, onRetest, onReport,
       <section className="th-hero">
         <div>
           <p className="th-eye" style={{ margin: 0 }}>{today}</p>
-          <h1 className="th-h1">{owner ? "Welcome back" : `${me.first ? "Welcome" : "Welcome back"}, ${firstName(me.name)}`}</h1>
+          <h1 className="th-h1">{owner ? "Welcome back, Asia" : `${me.first ? "Welcome" : "Welcome back"}, ${firstName(me.name)}`}</h1>
           <p className="th-lead">{owner ? "Everything your testers sent, and what needs a status." : "Here's what's open on the board and what to test next."}</p>
         </div>
         <div className="acts">
@@ -76,7 +80,7 @@ export default function Home({ me, bugs, posts, retestDates, onRetest, onReport,
 
       <div className="th-sec th-grid2">
         <section style={{ minWidth: 0 }}>
-          <div className="th-sechead"><div><h2 className="th-h2">{owner ? "Waiting on you" : "Recent reports"}</h2><p>{owner ? "New reports that need a status." : "Bugs and improvements from every tester."}</p></div>
+          <div className="th-sechead"><div><h2 className="th-h2">{owner ? "Waiting on you" : "Recent reports"}</h2><p>{owner ? "New reports that need a status, most urgent first." : "Bugs and improvements from every tester."}</p></div>
             <button className="th-link" onClick={() => onBoard("all")}>View all</button></div>
           {bugs === null ? <div className="th-skel" /> : recent.length === 0 ? (
             <div className="th-empty">{owner ? "All caught up." : "Nothing reported yet. Be the first."}</div>

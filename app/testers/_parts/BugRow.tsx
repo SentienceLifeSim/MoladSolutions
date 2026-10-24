@@ -4,6 +4,9 @@ import { KIND_LABEL, PLATFORM_LABEL } from "@/lib/testers/model";
 import { ago, shownName } from "./api";
 import { Icon, StatusPill, Sev } from "./ui";
 
+// Only the owner's board carries urgency (the server never sends it to testers).
+const URGENCY_TEXT = { urgent: "Urgent", high: "High", normal: "Normal", low: "Low" } as const;
+
 export default function BugRow({ b, onOpen }: { b: Bug; onOpen: (id: number) => void }) {
   const first = b.shots[0], vid = first?.type.startsWith("video");
   return (
@@ -15,7 +18,10 @@ export default function BugRow({ b, onOpen }: { b: Bug; onOpen: (id: number) => 
       <span className="bd">
         <span className="tp">
           <span className="tt"><span>#{b.id}</span>{b.title}</span>
-          <StatusPill s={b.status} />
+          <span className="th-pills">
+            {b.urgency && <span className={`th-urg u-${b.urgency}`} title={b.urgencyWhy}>{URGENCY_TEXT[b.urgency]}</span>}
+            <StatusPill s={b.status} />
+          </span>
         </span>
         <span className="th-meta">
           {b.kind === "bug" ? <Sev s={b.severity} /> : <span className={`th-kind k-${b.kind}`}>{KIND_LABEL[b.kind]}</span>}<i className="dot" />{PLATFORM_LABEL[b.platform]}{b.area && <><i className="dot" />{b.area}</>}

@@ -1,6 +1,8 @@
 import { rest, publicShotPrefix } from "@/lib/testers/db";
 import { who, json, denied } from "@/lib/testers/session";
 import { current } from "@/lib/testers/retest";
+import { gradeMissing, loadGrades } from "@/lib/testers/triage";
+import { after } from "next/server";
 import { AREAS, KINDS, KIND_LABEL, PLATFORMS, SEVERITIES, SEVERITY_LABEL, PLATFORM_LABEL, type Bug, type Kind, type Shot } from "@/lib/testers/model";
 
 const LIST = "id,kind,title,happened,steps,expected,platform,device,app_version,severity,area,status,owner_note,duplicate_of,reporter_name,reporter_code,shots,metoo,comments,created_at,updated_at,retest_ok,retest_still,fixed_in,fixed_at";
@@ -18,9 +20,15 @@ export async function GET(req: Request) {
     ]);
     const me = new Set(mine.map((m) => m.bug_id));
     const tested = new Map(tests.map((t) => [t.bug_id, t]));
+    // The owner also gets Claude's urgency grade on each open report (graded here if new).
+    const grades = w.role === "owner" ? await gradeMissing(rows, await loadGrades().catch(() => ({}))) : {};
     const bugs = rows.map(({ reporter_code, ...b }) => {
       const t = tested.get(b.id);
-      return { ...b, mine: reporter_code === w.code, iMetoo: me.has(b.id), myRetest: t && current(b, t.created_at) ? { result: t.result, at: t.created_at } : null };
+      const g = grades[b.id];
+      return {
+        ...b, mine: reporter_code === w.code, iMetoo: me.has(b.id), myRetest: t && current(b, t.created_at) ? { result: t.result, at: t.created_at } : null,
+        ...(g ? { urgency: g.level, urgencyWhy: g.why } : {}),
+      };
     });
     // Retests count toward the month even after a reopen, so send their dates on their own.
     const retestDates = tests.map((t) => t.created_at);
@@ -63,6 +71,11 @@ export async function POST(req: Request) {
       },
     });
     await notifyOwner(row.id, { title, happened, platform, severity, area, name: w.name, shots: shots.length, kind });
+    // Grade the new report after answering, so it is ready when the owner opens the hub.
+    if (kind !== "clear") after(async () => {
+      const [full] = await rest<Bug[]>(`tester_bugs?select=${LIST}&id=eq.${row.id}`).catch(() => [] as Bug[]);
+      if (full) await gradeMissing([full]);
+    });
     return json({ id: row.id });
   } catch {
     return json({ error: "Couldn't save your report. Try again in a moment." }, 500);
