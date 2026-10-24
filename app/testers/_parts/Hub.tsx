@@ -13,6 +13,7 @@ import Report from "./Report";
 import Detail from "./Detail";
 import Assist from "./Assist";
 import PlayerBugs from "./PlayerBugs";
+import Welcome from "./Welcome";
 import type { Prefill } from "./Report";
 
 const TABS = [
@@ -149,6 +150,7 @@ export default function Hub() {
         onDone={async (id) => { setReporting(false); setPrefill(null); toast("Thank you. Your report is on the board."); await refresh(); setOpen(id); }} />}
       {current && <Detail bug={current} me={me} onClose={closeBug} onChange={update} onAnswered={answered} onOpen={openBug} onMetoo={metoo} toast={toast}
         onDeleted={(id) => { setBugs((all) => all?.filter((b) => b.id !== id) ?? all); closeBug(); toast("Deleted"); }} />}
+      {me.role === "owner" && bugs && <Welcome bugs={bugs} onOpen={openBug} onPlayers={() => setTab("players")} />}
       {msg && <div className="th-toast" role="status">{msg}</div>}
     </div>
   );
