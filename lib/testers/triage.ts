@@ -81,8 +81,9 @@ export async function gradeMissing(bugs: Bug[], known?: Record<string, Grade>): 
         max_tokens: 4000,
         system: SYSTEM,
         tools: [TOOL],
-        tool_choice: { type: "tool", name: TOOL.name },
-        messages: [{ role: "user", content: list }],
+        // This model only allows auto tool choice; the instruction below asks for the one call.
+        tool_choice: { type: "auto" },
+        messages: [{ role: "user", content: `${list}\n\nCall grade_reports once with a grade for every report above.` }],
       },
       { timeout: 25000 },
     );
