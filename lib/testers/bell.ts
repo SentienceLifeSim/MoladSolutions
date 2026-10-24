@@ -55,7 +55,7 @@ export async function ownerBell(): Promise<{ items: BellItem[]; unread: number }
   const hidden = new Set(r.hidden ?? []);
   const items = said.filter((c) => title.has(c.bug_id) && !hidden.has(`t${c.id}`)).map((c) => ({
     id: `t${c.id}`, kind: "tester" as const, title: `${c.name?.trim() || "A tester"} commented on #${c.bug_id} ${title.get(c.bug_id)}`,
-    text: null, quote: firstLine(c.body, 140), at: c.created_at, bug: c.bug_id, comment: c.id,
+    text: null, quote: firstLine(c.body, 140) ?? "Sent a screenshot", at: c.created_at, bug: c.bug_id, comment: c.id,
     unread: Date.parse(c.created_at) > cleared && !read.has(`t${c.id}`),
   }));
   return { items, unread: items.filter((i) => i.unread).length };
@@ -89,7 +89,7 @@ export async function bellFor(code: string): Promise<{ items: BellItem[]; unread
   }
   for (const r of replies) {
     if (!title.has(r.bug_id)) continue;
-    items.push({ id: `c${r.id}`, kind: "reply", title: `The team replied on #${r.bug_id} ${title.get(r.bug_id)}`, text: null, quote: firstLine(r.body, 140), at: r.created_at, bug: r.bug_id, comment: r.id });
+    items.push({ id: `c${r.id}`, kind: "reply", title: `The team replied on #${r.bug_id} ${title.get(r.bug_id)}`, text: null, quote: firstLine(r.body, 140) ?? "Sent a screenshot", at: r.created_at, bug: r.bug_id, comment: r.id });
   }
   for (const b of mine) {
     if (!b.fixed_at || Date.parse(b.fixed_at) < now - DAYS * day) continue;

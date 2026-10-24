@@ -1,10 +1,15 @@
 "use client";
-import { useEffect, useState } from "react";
-import { KIND_LABEL, PLATFORM_LABEL, STATUSES, STATUS_LABEL, type Bug, type Comment, type Status } from "@/lib/testers/model";
+import { useEffect, useRef, useState } from "react";
+import { KIND_LABEL, PLATFORM_LABEL, STATUSES, STATUS_LABEL, type Bug, type Comment, type Shot, type Status } from "@/lib/testers/model";
 import { ago, call, initial, shownName } from "./api";
 import { Icon, Lightbox, Sev, Sheet, StatusPill, STATUS_COLOR, cssVar } from "./ui";
 import type { Me } from "./Gate";
 import { RetestAsk, RetestList } from "./Retest";
+import { normalize } from "./Report";
+
+// A screenshot on its way into a comment (owner 2026-10-24: "a resolved screenshot so the tester can see").
+type Att = { key: string; preview: string; video: boolean; state: "up" | "done" | "err"; shot?: Shot };
+const MAX_ATT = 4;
 
 export default function Detail({ bug, me, focusComment, onClose, onChange, onAnswered, onDeleted, onOpen, onMetoo, toast }: {
   bug: Bug; me: Me; focusComment?: number | null; onClose: () => void; onChange: (b: Bug) => void; onAnswered: (b: Bug) => void; onDeleted: (id: number) => void;
@@ -13,6 +18,8 @@ export default function Detail({ bug, me, focusComment, onClose, onChange, onAns
   const owner = me.role === "owner";
   const [cmts, setCmts] = useState<Comment[] | null>(null), [say, setSay] = useState(""), [sending, setSending] = useState(false);
   const [lb, setLb] = useState<{ src: string; video: boolean } | null>(null);
+  const [att, setAtt] = useState<Att[]>([]);
+  const attRef = useRef<HTMLInputElement>(null);
   const [note, setNote] = useState(bug.owner_note ?? ""), [dup, setDup] = useState(bug.duplicate_of ? String(bug.duplicate_of) : "");
 
   useEffect(() => {
@@ -29,12 +36,32 @@ export default function Detail({ bug, me, focusComment, onClose, onChange, onAns
   }, [focusComment, cmts]);
   useEffect(() => { setNote(bug.owner_note ?? ""); setDup(bug.duplicate_of ? String(bug.duplicate_of) : ""); }, [bug.id, bug.owner_note, bug.duplicate_of]);
 
+  async function attach(files: FileList | File[]) {
+    for (const raw of [...files].slice(0, Math.max(0, MAX_ATT - att.length))) {
+      const key = Math.random().toString(36).slice(2);
+      setAtt((a) => [...a, { key, preview: URL.createObjectURL(raw), video: raw.type.startsWith("video"), state: "up" }]);
+      try {
+        const f = await normalize(raw);
+        const { uploadUrl, publicUrl } = await call<{ uploadUrl: string; publicUrl: string }>("upload", { body: { type: f.type, size: f.size } });
+        const put = await fetch(uploadUrl, { method: "PUT", headers: { "Content-Type": f.type, "x-upsert": "false" }, body: f });
+        if (!put.ok) throw new Error("Upload failed. Try again.");
+        setAtt((a) => a.map((x) => (x.key === key ? { ...x, state: "done", shot: { url: publicUrl, type: f.type } } : x)));
+      } catch (e) {
+        setAtt((a) => a.filter((x) => x.key !== key));
+        toast((e as Error).message);
+      }
+    }
+  }
+  const attUploading = att.some((a) => a.state === "up");
+  const canSend = (!!say.trim() || att.some((a) => a.state === "done")) && !attUploading && !sending;
+
   async function post() {
-    if (!say.trim() || sending) return;
+    if (!canSend) return;
     setSending(true);
     try {
-      const r = await call<{ comment: Comment; count: number }>(`bugs/${bug.id}/comments`, { body: { body: say } });
-      setCmts((c) => [...(c ?? []), r.comment]); setSay(""); onChange({ ...bug, comments: r.count });
+      const shots = att.filter((a) => a.state === "done").map((a) => a.shot!);
+      const r = await call<{ comment: Comment; count: number }>(`bugs/${bug.id}/comments`, { body: { body: say, shots } });
+      setCmts((c) => [...(c ?? []), r.comment]); setSay(""); setAtt([]); onChange({ ...bug, comments: r.count });
     } catch (e) { toast((e as Error).message); }
     setSending(false);
   }
@@ -125,15 +152,40 @@ export default function Detail({ bug, me, focusComment, onClose, onChange, onAns
               <span className="th-av">{c.owner ? "S" : initial(c.name)}</span>
               <div className="bx">
                 <div><b>{c.mine ? "You" : c.owner ? c.name : shownName(c.name)}</b>{c.owner && <span className="tm">Team</span>}<span>{ago(c.created_at)}</span></div>
-                <p>{c.body}</p>
+                {c.body && <p>{c.body}</p>}
+                {!!c.shots?.length && (
+                  <div className="th-cmt-shots">
+                    {c.shots.map((s) => {
+                      const v = s.type.startsWith("video");
+                      return (
+                        <button key={s.url} onClick={() => setLb({ src: s.url, video: v })} aria-label="Open screenshot">
+                          {v ? <><video src={s.url} muted playsInline preload="metadata" /><em><Icon n="play" /></em></> : <img src={s.url} alt="" loading="lazy" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
           ))}
         </div>
+        {att.length > 0 && (
+          <div className="th-att">
+            {att.map((a) => (
+              <span key={a.key} className={a.state === "up" ? "up" : ""}>
+                {a.video ? <video src={a.preview} muted playsInline /> : <img src={a.preview} alt="" />}
+                <button type="button" aria-label="Remove screenshot" onClick={() => setAtt((x) => x.filter((y) => y.key !== a.key))}><Icon n="x" /></button>
+              </span>
+            ))}
+          </div>
+        )}
         <div className="th-say" style={{ marginTop: 14 }}>
+          <button type="button" className="th-attbtn" aria-label="Add a screenshot" title="Add a screenshot" disabled={att.length >= MAX_ATT} onClick={() => attRef.current?.click()}><Icon n="image" /></button>
+          <input ref={attRef} type="file" accept="image/*,video/mp4,video/quicktime,video/webm" multiple hidden onChange={(e) => { if (e.target.files) attach(e.target.files); e.target.value = ""; }} />
           <textarea className="th-in" rows={1} value={say} onChange={(e) => setSay(e.target.value)} placeholder="Add a comment"
+            onPaste={(e) => { const fs = [...e.clipboardData.files]; if (fs.length) { e.preventDefault(); attach(fs); } }}
             onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) post(); }} />
-          <button className="th-btn pri sm" style={{ height: 46 }} disabled={!say.trim() || sending} onClick={post}>Send</button>
+          <button className="th-btn pri sm" style={{ height: 46 }} disabled={!canSend} onClick={post}>{attUploading ? "Uploading" : "Send"}</button>
         </div>
       </div>
       {lb && <Lightbox src={lb.src} video={lb.video} onClose={() => setLb(null)} />}

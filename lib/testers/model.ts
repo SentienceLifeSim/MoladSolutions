@@ -43,7 +43,7 @@ export type Retest = { id: number; name: string | null; result: RetestResult; no
 export const RETESTABLE: readonly Status[] = ["live"];
 /** This many "Fixed for me" answers marks a report Verified fixed on its own. */
 export const VERIFY_AT = 2;
-export type Comment = { id: number; name: string | null; owner: boolean; body: string; created_at: string; mine?: boolean };
+export type Comment = { id: number; name: string | null; owner: boolean; body: string; created_at: string; mine?: boolean; shots?: Shot[] };
 export type Post = { id: number; kind: "focus" | "build"; title: string; body: string | null; version: string | null; created_at: string };
 
 // Owner rule (2026-10-23): at least this many new reports per calendar month (UTC), Me too doesn't count.

@@ -1,6 +1,7 @@
 import { rest } from "@/lib/testers/db";
 import { who, json, denied } from "@/lib/testers/session";
 import { STATUSES, type Comment } from "@/lib/testers/model";
+import { loadCommentShots } from "@/lib/testers/commentShots";
 
 type Ctx = { params: Promise<{ id: string }> };
 const num = (s: string) => (/^\d{1,12}$/.test(s) ? Number(s) : 0);
@@ -12,8 +13,11 @@ export async function GET(req: Request, { params }: Ctx) {
   const id = num((await params).id);
   if (!id) return json({ error: "No such report." }, 404);
   try {
-    const rows = await rest<(Comment & { code: string })[]>(`tester_bug_comments?select=id,name,owner,body,created_at,code&bug_id=eq.${id}&order=created_at.asc&limit=500`);
-    return json({ comments: rows.map(({ code, ...c }) => ({ ...c, mine: code === w.code })) });
+    const [rows, shots] = await Promise.all([
+      rest<(Comment & { code: string })[]>(`tester_bug_comments?select=id,name,owner,body,created_at,code&bug_id=eq.${id}&order=created_at.asc&limit=500`),
+      loadCommentShots().catch(() => ({} as Awaited<ReturnType<typeof loadCommentShots>>)),
+    ]);
+    return json({ comments: rows.map(({ code, ...c }) => ({ ...c, mine: code === w.code, shots: shots[c.id] ?? [] })) });
   } catch {
     return json({ error: "Couldn't load the comments." }, 500);
   }
