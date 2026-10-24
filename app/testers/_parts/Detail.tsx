@@ -6,8 +6,8 @@ import { Icon, Lightbox, Sev, Sheet, StatusPill, STATUS_COLOR, cssVar } from "./
 import type { Me } from "./Gate";
 import { RetestAsk, RetestList } from "./Retest";
 
-export default function Detail({ bug, me, onClose, onChange, onAnswered, onDeleted, onOpen, onMetoo, toast }: {
-  bug: Bug; me: Me; onClose: () => void; onChange: (b: Bug) => void; onAnswered: (b: Bug) => void; onDeleted: (id: number) => void;
+export default function Detail({ bug, me, focusComment, onClose, onChange, onAnswered, onDeleted, onOpen, onMetoo, toast }: {
+  bug: Bug; me: Me; focusComment?: number | null; onClose: () => void; onChange: (b: Bug) => void; onAnswered: (b: Bug) => void; onDeleted: (id: number) => void;
   onOpen: (id: number) => void; onMetoo: (b: Bug) => void; toast: (m: string) => void;
 }) {
   const owner = me.role === "owner";
@@ -21,6 +21,12 @@ export default function Detail({ bug, me, onClose, onChange, onAnswered, onDelet
     call<{ comments: Comment[] }>(`bugs/${bug.id}`).then((r) => live && setCmts(r.comments)).catch(() => live && setCmts([]));
     return () => { live = false; };
   }, [bug.id, bug.comments]);
+  // Opened from the bell: scroll to the team's reply once the conversation has loaded.
+  useEffect(() => {
+    if (!focusComment || !cmts?.some((c) => c.id === focusComment)) return;
+    const t = window.setTimeout(() => document.getElementById(`th-cmt-${focusComment}`)?.scrollIntoView({ behavior: "smooth", block: "center" }), 250);
+    return () => clearTimeout(t);
+  }, [focusComment, cmts]);
   useEffect(() => { setNote(bug.owner_note ?? ""); setDup(bug.duplicate_of ? String(bug.duplicate_of) : ""); }, [bug.id, bug.owner_note, bug.duplicate_of]);
 
   async function post() {
@@ -115,7 +121,7 @@ export default function Detail({ bug, me, onClose, onChange, onAnswered, onDelet
           {cmts === null ? <div className="th-skel" style={{ height: 54 }} /> : cmts.length === 0 ? (
             <p className="th-mut" style={{ margin: 0, fontSize: 14 }}>No comments yet. Add detail, or say if it happens to you differently.</p>
           ) : cmts.map((c) => (
-            <div key={c.id} className={`th-cmt${c.owner ? " team" : ""}`}>
+            <div key={c.id} id={`th-cmt-${c.id}`} className={`th-cmt${c.owner ? " team" : ""}${c.id === focusComment ? " focus" : ""}`}>
               <span className="th-av">{c.owner ? "S" : initial(c.name)}</span>
               <div className="bx">
                 <div><b>{c.mine ? "You" : c.owner ? c.name : shownName(c.name)}</b>{c.owner && <span className="tm">Team</span>}<span>{ago(c.created_at)}</span></div>

@@ -483,3 +483,38 @@ select.th-in{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xml
 .th-welcome-more{margin:0;font-size:13px;color:var(--mut)}
 .th-dupe-tag{font-weight:600;color:#8a5cf6}
 .th[data-theme=dark] .th-dupe-tag{color:#b49bff}
+
+/* ── Tester bell (owner 2026-10-24): header icon on phones, sidebar row on computers, one panel ── */
+.th-cmt.focus .bx{box-shadow:0 0 0 2px var(--acc)}
+.th-bellico{display:inline-grid;place-items:center;transform-origin:50% 12%}
+.th-bellico.ring{animation:th-ring 1s ease-in-out 1}
+@keyframes th-ring{0%,100%{transform:rotate(0)}15%{transform:rotate(14deg)}30%{transform:rotate(-12deg)}45%{transform:rotate(8deg)}60%{transform:rotate(-5deg)}75%{transform:rotate(2deg)}}
+@media (prefers-reduced-motion:reduce){.th-bellico.ring{animation:none}}
+.th-bellbtn{position:relative;width:38px;height:38px;border:0;border-radius:50%;background:none;color:var(--side-tx);display:grid;place-items:center;flex:none}
+.th-bellbtn.on,.th-bellbtn:hover{background:var(--side-on)}
+.th-belldot{position:absolute;top:2px;right:0;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:var(--danger);color:#fff;font-size:10px;font-weight:700;display:grid;place-items:center;border:2px solid var(--side)}
+.th-nav .th-bellrow{color:var(--side-tx)}
+.th-nav .th-bellrow[aria-expanded="true"]{background:var(--side-on)}
+.th-bellcnt{margin-left:auto;min-width:20px;height:20px;padding:0 6px;border-radius:10px;font-size:11.5px;font-weight:700;display:inline-grid;place-items:center;background:var(--danger);color:#fff}
+.th-bellpnl{position:fixed;z-index:60;top:20px;left:240px;width:min(400px,calc(100vw - 32px));max-height:min(560px,calc(100dvh - 40px));display:flex;flex-direction:column;border-radius:16px;background:var(--panel);color:var(--tx);border:1px solid var(--line);box-shadow:var(--lift);overflow:hidden}
+@media (max-width:900px){.th-bellpnl{top:calc(env(safe-area-inset-top,0px) + 64px);left:auto;right:max(10px,env(safe-area-inset-right,0px));width:min(400px,calc(100vw - 20px));max-height:calc(100dvh - 160px)}}
+.th-bellpnl header{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--line)}
+.th-bellpnl header b{font-size:15px;font-weight:600}
+.th-bellpnl header button{border:0;background:none;padding:0;color:var(--acc);font-size:13px;font-weight:600}
+.th-bellnone{margin:0;padding:22px 16px;font-size:14px;color:var(--mut)}
+.th-belllist{overflow-y:auto;-webkit-overflow-scrolling:touch}
+.th-bellit{display:flex;gap:11px;width:100%;padding:13px 16px;border:0;border-bottom:1px solid var(--line);background:none;text-align:left}
+.th-bellit:last-child{border-bottom:0}
+.th-bellit:hover{background:var(--panel2)}
+.th-bellit.unread{background:var(--acc-soft)}
+.th-bellit .ic{width:34px;height:34px;border-radius:50%;flex:none;display:grid;place-items:center;background:var(--acc-soft);color:var(--acc);font-size:13px;font-weight:700}
+.th-bellit .ic .th-ico{width:17px;height:17px}
+.th-bellit.k-reply .ic{background:var(--ok);color:#fff}
+.th-bellit.k-fixed .ic,.th-bellit.k-live .ic{background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok)}
+.th-bellit .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.th-bellit .t b{font-size:13.5px;font-weight:600;line-height:1.3}
+.th-bellit .t>span{font-size:13px;color:var(--mut);line-height:1.4}
+.th-bellit .t q{quotes:none;font-size:13px;line-height:1.4;padding:7px 9px;border-radius:8px;background:var(--panel2);border:1px solid var(--line)}
+.th-bellit .t small{font-size:11.5px;color:var(--dim)}
+.th-bellit .u{width:8px;height:8px;border-radius:50%;background:var(--acc);flex:none;margin-top:6px;visibility:hidden}
+.th-bellit.unread .u{visibility:visible}

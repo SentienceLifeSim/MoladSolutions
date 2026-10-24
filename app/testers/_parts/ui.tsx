@@ -28,6 +28,7 @@ const P: Record<string, string> = {
   check: "M5 12.5l4.5 4.5L19 7",
   sun: "M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4",
   moon: "M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z",
+  bell: "M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0",
   retest: "M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7M8.5 12l2.5 2.5 4.5-5",
 };
 export function Icon({ n, className = "th-ico" }: { n: keyof typeof P | string; className?: string }) {
