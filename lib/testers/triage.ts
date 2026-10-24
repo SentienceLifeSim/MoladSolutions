@@ -9,7 +9,9 @@ import type { Bug } from "./model";
 
 export const URGENCIES = ["urgent", "high", "normal", "low"] as const;
 export type Urgency = (typeof URGENCIES)[number];
-export type Grade = { level: Urgency; why: string; at: string };
+/** v2 adds duplicates: other open tester reports (ids) and live game player bugs (Voices ids) about the same problem. */
+export type Grade = { level: Urgency; why: string; at: string; v?: number; sameTesters?: number[]; samePlayers?: string[] };
+const VERSION = 4;
 export const URGENCY_LABEL: Record<Urgency, string> = { urgent: "Urgent", high: "High", normal: "Normal", low: "Low" };
 export const URGENCY_ORDER: Record<Urgency, number> = { urgent: 0, high: 1, normal: 2, low: 3 };
 
@@ -23,7 +25,8 @@ Grade each report so the developer knows what to acknowledge first:
 - high: a whole feature, career, pack or purchase does not work, or a frequent action gives a clearly wrong result.
 - normal: something is wrong but the game stays playable; a single option misbehaves; confusing or odd outcomes.
 - low: looks, wording, small layout issues, balance wishes, and improvement ideas.
-The tester's own severity is a hint only; judge from what they describe. Give a short plain reason (under 15 words), no dashes.`;
+The tester's own severity is a hint only; judge from what they describe. Give a short plain reason (under 15 words), no dashes.
+Also list duplicates: other tester reports and live game player bugs (both listed for you) about the same problem, even when worded differently or seen on a different pet, character or device (for example a dog and a cat both unable to enter pet shows). Leave a list empty only when nothing is about the same problem.`;
 
 const TOOL: Anthropic.Tool = {
   name: "grade_reports",
@@ -35,7 +38,11 @@ const TOOL: Anthropic.Tool = {
         type: "array",
         items: {
           type: "object",
-          properties: { id: { type: "integer" }, level: { type: "string", enum: [...URGENCIES] }, why: { type: "string" } },
+          properties: {
+            id: { type: "integer" }, level: { type: "string", enum: [...URGENCIES] }, why: { type: "string" },
+            same_testers: { type: "array", items: { type: "integer" }, description: "Ids of other tester reports about the same problem." },
+            same_players: { type: "array", items: { type: "string" }, description: "Ids of live game player bugs about the same problem." },
+          },
           required: ["id", "level", "why"],
         },
       },
@@ -65,7 +72,7 @@ export async function gradeMissing(bugs: Bug[], known?: Record<string, Grade>): 
   let all: Record<string, Grade> = known ?? {};
   try {
     if (!known) all = await loadGrades();
-    const todo = bugs.filter((b) => needsGrade(b) && !all[b.id]).slice(0, 30);
+    const todo = bugs.filter((b) => needsGrade(b) && all[b.id]?.v !== VERSION).slice(0, 30);
     if (!todo.length) return all;
     const list = todo.map((b) =>
       [
@@ -75,6 +82,11 @@ export async function gradeMissing(bugs: Bug[], known?: Record<string, Grade>): 
         b.steps ? `Steps: ${b.steps.slice(0, 300)}` : "",
       ].filter(Boolean).join("\n"),
     ).join("\n\n");
+    // What a report can be a duplicate of: every open tester report, and the player bug list.
+    const others = bugs.filter(needsGrade).map((b) => `#${b.id} ${b.title}`).join("\n");
+    const board = await rest<{ value: { bugs?: { voicesId: string | null; title: string; quotes?: { text: string }[] }[] } | null }[]>("desk_settings?select=value&key=eq.bug_board").catch(() => []);
+    const playerBugs = (board[0]?.value?.bugs ?? []).filter((p) => p.voicesId);
+    const playerList = playerBugs.map((p) => `${p.voicesId}: ${p.title}${p.quotes?.length ? ` (players said: ${p.quotes.map((q) => q.text.slice(0, 200).replace(/\s+/g, " ")).join(" / ")})` : ""}`).join("\n");
     const res = await client.messages.create(
       {
         model: MODEL,
@@ -83,12 +95,14 @@ export async function gradeMissing(bugs: Bug[], known?: Record<string, Grade>): 
         tools: [TOOL],
         // This model only allows auto tool choice; the instruction below asks for the one call.
         tool_choice: { type: "auto" },
-        messages: [{ role: "user", content: `${list}\n\nCall grade_reports once with a grade for every report above.` }],
+        messages: [{ role: "user", content: `Reports to grade:\n\n${list}\n\nAll open tester reports:\n${others}\n\nLive game player bugs:\n${playerList || "none"}\n\nCall grade_reports once with a grade for every report to grade.` }],
       },
       { timeout: 25000 },
     );
     const use = res.content.find((c) => c.type === "tool_use");
-    const grades = ((use?.type === "tool_use" ? (use.input as { grades?: unknown }).grades : null) ?? []) as { id: number; level: string; why: string }[];
+    const grades = ((use?.type === "tool_use" ? (use.input as { grades?: unknown }).grades : null) ?? []) as { id: number; level: string; why: string; same_testers?: unknown; same_players?: unknown }[];
+    const testerIds = new Set(bugs.filter(needsGrade).map((b) => b.id));
+    const playerIds = new Set(playerBugs.map((p) => p.voicesId as string));
     const ids = new Set(todo.map((b) => b.id));
     const at = new Date().toISOString();
     let changed = false;
@@ -96,7 +110,9 @@ export async function gradeMissing(bugs: Bug[], known?: Record<string, Grade>): 
     const fresh = await loadGrades();
     for (const g of grades) {
       if (!ids.has(g.id) || !URGENCIES.includes(g.level as Urgency)) continue;
-      fresh[g.id] = { level: g.level as Urgency, why: String(g.why ?? "").replace(/\s[-–—]\s/g, ", ").slice(0, 140), at };
+      const st = Array.isArray(g.same_testers) ? g.same_testers.map(Number).filter((n) => n !== g.id && testerIds.has(n)) : [];
+      const sp = Array.isArray(g.same_players) ? g.same_players.map(String).filter((x) => playerIds.has(x)) : [];
+      fresh[g.id] = { level: g.level as Urgency, why: String(g.why ?? "").replace(/\s[-–—]\s/g, ", ").slice(0, 140), at, v: VERSION, sameTesters: [...new Set(st)].slice(0, 10), samePlayers: [...new Set(sp)].slice(0, 10) };
       changed = true;
     }
     if (changed) await saveGrades(fresh);

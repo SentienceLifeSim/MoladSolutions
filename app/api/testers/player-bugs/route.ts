@@ -1,5 +1,6 @@
 import { rest } from "@/lib/testers/db";
 import { who, json, denied } from "@/lib/testers/session";
+import { loadGrades } from "@/lib/testers/triage";
 
 // Owner only: bugs real players reported since the last store update, ranked by urgency.
 // The list is written by the lead's Claude session into desk_settings (key bug_board) on the
@@ -9,6 +10,8 @@ export type PlayerBug = {
   rank: number; level: "critical" | "high" | "medium" | "low"; title: string; voicesId: string | null;
   players: number; why: string; cause: string | null; quotes: { text: string; source: string; at: string | null }[];
   status: "open" | "shipped";
+  /** Open tester reports about the same problem (from the tester triage). */
+  testers?: { id: number; title: string }[];
 };
 export type PlayerBoard = { release: string; since: string; updatedAt: string; bugs: PlayerBug[] };
 
@@ -31,7 +34,10 @@ export async function GET(req: Request) {
       ? await rest<{ id: string; status: string }[]>(`voices_items?select=id,status&id=in.(${ids.map((i) => `"${i}"`).join(",")})`)
       : [];
     const shipped = new Set(items.filter((i) => i.status === "shipped").map((i) => i.id));
-    const board: PlayerBoard = { ...v, bugs: v.bugs.map((b) => ({ ...b, status: b.voicesId && shipped.has(b.voicesId) ? "shipped" : "open" })) };
+    const grades = await loadGrades().catch(() => ({} as Awaited<ReturnType<typeof loadGrades>>));
+    const open = await rest<{ id: number; title: string; status: string }[]>("tester_bugs?select=id,title,status&status=in.(new,confirmed,fixing)").catch(() => []);
+    const testersFor = (vid: string | null) => vid ? open.filter((t) => grades[t.id]?.samePlayers?.includes(vid)).map((t) => ({ id: t.id, title: t.title })) : [];
+    const board: PlayerBoard = { ...v, bugs: v.bugs.map((b) => ({ ...b, status: b.voicesId && shipped.has(b.voicesId) ? "shipped" : "open", testers: testersFor(b.voicesId) })) };
     return json({ board });
   } catch {
     return json({ error: "Couldn't load player reports." }, 500);

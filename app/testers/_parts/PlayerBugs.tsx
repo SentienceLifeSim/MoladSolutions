@@ -72,7 +72,8 @@ function Row({ b, onMark }: { b: PlayerBug; onMark: () => void }) {
           {b.why && <p>{b.why}</p>}
           {b.cause && <p className="th-pb-cause">{b.cause}</p>}
           <div className="th-meta">
-            <span>{b.players === 1 ? "1 report" : `${b.players} reports`}</span>
+            {b.players === 1 ? <span>1 report</span> : <span className="th-dupe-tag">{b.players === 2 ? "Mentioned twice" : `Mentioned ${b.players} times`}</span>}
+            {!!b.testers?.length && <><i className="dot" /><span className="th-dupe-tag" title={b.testers.map((t) => `#${t.id} ${t.title}`).join("\n")}>Testers too: {b.testers.map((t) => `#${t.id}`).join(", ")}</span></>}
             {done && <><i className="dot" /><span className="th-pb-fixed">Fixed</span></>}
             {!b.voicesId && <><i className="dot" /><span>Not on Voices</span></>}
           </div>

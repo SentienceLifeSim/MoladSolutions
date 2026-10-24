@@ -32,6 +32,8 @@ export type Bug = {
   mine?: boolean; iMetoo?: boolean; myRetest?: { result: RetestResult; at: string } | null;
   /** Owner only: Claude's urgency grade for an open report (lib/testers/triage.ts). */
   urgency?: "urgent" | "high" | "normal" | "low"; urgencyWhy?: string;
+  /** Owner only: other open tester reports and live game player bugs about the same problem. */
+  sameTesters?: number[]; samePlayers?: string[];
 };
 // Ready to Retest (owner 2026-10-23): testers check a fixed bug in their own game.
 export const RETEST_RESULTS = ["fixed", "still"] as const;

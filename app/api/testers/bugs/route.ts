@@ -22,12 +22,18 @@ export async function GET(req: Request) {
     const tested = new Map(tests.map((t) => [t.bug_id, t]));
     // The owner also gets Claude's urgency grade on each open report (graded here if new).
     const grades = w.role === "owner" ? await gradeMissing(rows, await loadGrades().catch(() => ({}))) : {};
+    // Duplicates go both ways: if one report names another, both show it.
+    const twins = new Map<number, Set<number>>();
+    for (const [id, g] of Object.entries(grades)) for (const o of g.sameTesters ?? []) {
+      if (!twins.has(+id)) twins.set(+id, new Set()); if (!twins.has(o)) twins.set(o, new Set());
+      twins.get(+id)!.add(o); twins.get(o)!.add(+id);
+    }
     const bugs = rows.map(({ reporter_code, ...b }) => {
       const t = tested.get(b.id);
       const g = grades[b.id];
       return {
         ...b, mine: reporter_code === w.code, iMetoo: me.has(b.id), myRetest: t && current(b, t.created_at) ? { result: t.result, at: t.created_at } : null,
-        ...(g ? { urgency: g.level, urgencyWhy: g.why } : {}),
+        ...(g ? { urgency: g.level, urgencyWhy: g.why, sameTesters: [...(twins.get(b.id) ?? [])], samePlayers: g.samePlayers ?? [] } : {}),
       };
     });
     // Retests count toward the month even after a reopen, so send their dates on their own.
