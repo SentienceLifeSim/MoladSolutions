@@ -28,9 +28,9 @@ export function BellButton({ bell, open, onToggle, side }: { bell: BellState | n
   );
 }
 
-const ICON: Record<BellItem["kind"], string> = { build: "build", focus: "bulb", reply: "chat", fixed: "check", live: "check" };
+const ICON: Record<BellItem["kind"], string> = { build: "build", focus: "bulb", reply: "chat", fixed: "check", live: "check", tester: "chat" };
 
-/** The list. Tapping an item marks it read and takes the tester there. */
+/** The list. Tapping an item marks it read and goes there. */
 export function BellPanel({ bell, onPick, onReadAll, onClose }: { bell: BellState | null; onPick: (i: BellItem) => void; onReadAll: () => void; onClose: () => void }) {
   const box = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -43,12 +43,12 @@ export function BellPanel({ bell, onPick, onReadAll, onClose }: { bell: BellStat
     <div className="th-bellpnl" ref={box} role="dialog" aria-label="Notifications">
       <header><b>Notifications</b>{!!bell?.unread && <button type="button" onClick={onReadAll}>Mark all read</button>}</header>
       {!bell ? <div className="th-skel" style={{ margin: 14, height: 54 }} /> : bell.items.length === 0 ? (
-        <p className="th-bellnone">Nothing yet. New builds and replies to your reports will show up here.</p>
+        <p className="th-bellnone">Nothing new yet. Updates will show up here.</p>
       ) : (
         <div className="th-belllist">
           {bell.items.map((i) => (
             <button type="button" key={i.id} className={`th-bellit k-${i.kind}${i.unread ? " unread" : ""}`} onClick={() => onPick(i)}>
-              <span className="ic">{i.kind === "reply" ? "S" : <Icon n={ICON[i.kind]} />}</span>
+              <span className="ic">{i.kind === "reply" ? "S" : i.kind === "tester" ? (i.title.trim().charAt(0).toUpperCase() || "?") : <Icon n={ICON[i.kind]} />}</span>
               <span className="t">
                 <b>{i.title}</b>
                 {i.text && <span>{i.text}</span>}

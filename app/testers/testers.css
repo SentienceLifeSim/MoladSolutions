@@ -510,6 +510,7 @@ select.th-in{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xml
 .th-bellit .ic{width:34px;height:34px;border-radius:50%;flex:none;display:grid;place-items:center;background:var(--acc-soft);color:var(--acc);font-size:13px;font-weight:700}
 .th-bellit .ic .th-ico{width:17px;height:17px}
 .th-bellit.k-reply .ic{background:var(--ok);color:#fff}
+.th-bellit.k-tester .ic{background:var(--acc);color:#fff}
 .th-bellit.k-fixed .ic,.th-bellit.k-live .ic{background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok)}
 .th-bellit .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
 .th-bellit .t b{font-size:13.5px;font-weight:600;line-height:1.3}

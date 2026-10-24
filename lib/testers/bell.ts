@@ -6,7 +6,7 @@
 import { rest } from "./db";
 import type { Status } from "./model";
 
-export type BellKind = "build" | "focus" | "reply" | "fixed" | "live";
+export type BellKind = "build" | "focus" | "reply" | "fixed" | "live" | "tester";
 export type BellItem = { id: string; kind: BellKind; title: string; text: string | null; quote: string | null; at: string; bug: number | null; comment: number | null; unread: boolean };
 type Reads = { clearedAt?: string; read?: string[] };
 
@@ -37,6 +37,27 @@ export async function markRead(code: string, item: string | "all"): Promise<void
     prefer: "resolution=merge-duplicates,return=minimal",
     body: [{ key: KEY, value: all, updated_at: new Date().toISOString() }],
   });
+}
+
+/** The team's bell (owner 2026-10-24): every comment a tester leaves on a report. Read marks live under "owner". */
+export async function ownerBell(): Promise<{ items: BellItem[]; unread: number }> {
+  const now = Date.now(), since = iso(now - DAYS * day);
+  const [said, reads] = await Promise.all([
+    rest<{ id: number; bug_id: number; name: string | null; body: string; created_at: string }[]>(`tester_bug_comments?select=id,bug_id,name,body,created_at&owner=is.false&created_at=gte.${since}&order=created_at.desc&limit=${MAX}`),
+    loadAll(),
+  ]);
+  const bugIds = ids(said.map((c) => c.bug_id));
+  const titled = bugIds ? await rest<{ id: number; title: string }[]>(`tester_bugs?select=id,title&id=in.(${bugIds})`) : [];
+  const title = new Map(titled.map((b) => [b.id, b.title]));
+  const r = reads.owner ?? {};
+  const cleared = Date.parse(r.clearedAt ?? iso(now - FIRST_VISIT_DAYS * day));
+  const read = new Set(r.read ?? []);
+  const items = said.filter((c) => title.has(c.bug_id)).map((c) => ({
+    id: `t${c.id}`, kind: "tester" as const, title: `${c.name?.trim() || "A tester"} commented on #${c.bug_id} ${title.get(c.bug_id)}`,
+    text: null, quote: firstLine(c.body, 140), at: c.created_at, bug: c.bug_id, comment: c.id,
+    unread: Date.parse(c.created_at) > cleared && !read.has(`t${c.id}`),
+  }));
+  return { items, unread: items.filter((i) => i.unread).length };
 }
 
 /** The bell for one tester: newest first, up to 30 items from the last 30 days. */

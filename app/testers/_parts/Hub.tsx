@@ -131,7 +131,7 @@ export default function Hub() {
     <div className="th" data-theme={theme}>
       <aside className="th-side">
         <button className="th-brand" onClick={() => setTab("home")}><img src="/sentience-icon.png" alt="" /><span><b>Sentience</b><small>Tester Hub</small></span></button>
-        <nav className="th-nav">{me.role !== "owner" && <BellButton side bell={bell} open={bellOpen} onToggle={() => setBellOpen((o) => !o)} />}{tabs.map((t) => <button key={t.key} aria-current={tab === t.key ? "page" : undefined} onClick={() => setTab(t.key)}><Icon n={t.icon} />{t.key === "bugs" ? "Bug board" : t.key === "retest" ? "Ready to retest" : t.key === "players" ? "Players reported bugs" : t.label}{badge(t.key)}</button>)}</nav>
+        <nav className="th-nav">{<BellButton side bell={bell} open={bellOpen} onToggle={() => setBellOpen((o) => !o)} />}{tabs.map((t) => <button key={t.key} aria-current={tab === t.key ? "page" : undefined} onClick={() => setTab(t.key)}><Icon n={t.icon} />{t.key === "bugs" ? "Bug board" : t.key === "retest" ? "Ready to retest" : t.key === "players" ? "Players reported bugs" : t.label}{badge(t.key)}</button>)}</nav>
         <div className="th-sidefoot">
           {themeBtn}
           <div className="th-me"><span className="th-av">{me.role === "owner" ? "S" : initial(me.name)}</span><span><b>{me.role === "owner" ? "Team" : me.name}</b><button onClick={signOut}>Sign out</button></span></div>
@@ -141,7 +141,7 @@ export default function Hub() {
         <header className="th-head">
           <button className="th-brand" onClick={() => setTab("home")}><img src="/sentience-icon.png" alt="" /><span><b>Sentience</b><small>Tester Hub</small></span></button>
           {themeBtn}
-          {me.role !== "owner" && <BellButton bell={bell} open={bellOpen} onToggle={() => setBellOpen((o) => !o)} />}
+          {<BellButton bell={bell} open={bellOpen} onToggle={() => setBellOpen((o) => !o)} />}
           <div style={{ position: "relative" }}>
             <button className="th-av" style={{ border: 0 }} onClick={() => setMenu((m) => !m)} aria-expanded={menu} aria-label="Account">{me.role === "owner" ? "S" : initial(me.name)}</button>
             {menu && (
@@ -167,7 +167,7 @@ export default function Hub() {
       <Assist me={me} bugs={bugs} onDraft={(p) => { setOpen(null); setPrefill(p); setReporting(true); }} onMetoo={metoo} onChanged={refresh} toast={toast} />
       {reporting && <Report bugs={bugs ?? []} prefill={prefill} onClose={() => { setReporting(false); setPrefill(null); }} onOpen={openBug} onMetoo={metoo}
         onDone={async (id) => { setReporting(false); setPrefill(null); toast("Thank you. Your report is on the board."); await refresh(); setOpen(id); }} />}
-      {bellOpen && me.role !== "owner" && <BellPanel bell={bell} onPick={pickBell} onReadAll={readAllBell} onClose={() => setBellOpen(false)} />}
+      {bellOpen && <BellPanel bell={bell} onPick={pickBell} onReadAll={readAllBell} onClose={() => setBellOpen(false)} />}
       {current && <Detail bug={current} me={me} focusComment={focusComment} onClose={closeBug} onChange={update} onAnswered={answered} onOpen={openBug} onMetoo={metoo} toast={toast}
         onDeleted={(id) => { setBugs((all) => all?.filter((b) => b.id !== id) ?? all); closeBug(); toast("Deleted"); }} />}
       {me.role === "owner" && bugs && <Welcome bugs={bugs} onOpen={openBug} onPlayers={() => setTab("players")} />}
