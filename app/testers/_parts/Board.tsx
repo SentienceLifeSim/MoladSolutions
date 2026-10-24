@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
-import { KIND_LABEL, type Bug, type Kind, type Platform } from "@/lib/testers/model";
+import { KIND_LABEL, SEVERITIES, type Bug, type Kind, type Platform } from "@/lib/testers/model";
 import { words } from "./api";
 import { GROUPS, inGroup, type GroupKey } from "./groups";
 import { Icon } from "./ui";
@@ -8,10 +8,12 @@ import BugRow from "./BugRow";
 
 export type BoardFilter = { g: GroupKey; mine: boolean };
 
+const sevRank = (b: Bug) => (b.kind === "bug" ? SEVERITIES.indexOf(b.severity) : SEVERITIES.length + (b.kind === "idea" ? 0 : 1));
+
 export default function Board({ bugs, filter, setFilter, onOpen, onReport }: {
   bugs: Bug[] | null; filter: BoardFilter; setFilter: (f: BoardFilter) => void; onOpen: (id: number) => void; onReport: () => void;
 }) {
-  const [q, setQ] = useState(""), [plat, setPlat] = useState<Platform | "all">("all"), [sort, setSort] = useState<"new" | "metoo">("new"), [kind, setKind] = useState<Kind | "all">("all");
+  const [q, setQ] = useState(""), [plat, setPlat] = useState<Platform | "all">("all"), [sort, setSort] = useState<"new" | "metoo" | "severe">("new"), [kind, setKind] = useState<Kind | "all">("all");
   const all = bugs ?? [];
   const base = all.filter((b) => (plat === "all" || b.platform === plat) && (!filter.mine || b.mine) && (kind === "all" ? b.kind !== "clear" : b.kind === kind));
   const shown = useMemo(() => {
@@ -24,7 +26,10 @@ export default function Board({ bugs, filter, setFilter, onOpen, onReport }: {
         return qs.every((w) => hay.includes(w));
       });
     }
-    return sort === "metoo" ? [...r].sort((a, b) => b.metoo - a.metoo || b.id - a.id) : r;
+    if (sort === "metoo") return [...r].sort((a, b) => b.metoo - a.metoo || b.id - a.id);
+    // Most severe first: the tester's own severity, Game breaking down to Cosmetic; improvements and check-ins after bugs.
+    if (sort === "severe") return [...r].sort((a, b) => sevRank(a) - sevRank(b) || b.id - a.id);
+    return r;
   }, [base, filter.g, q, sort]);
 
   return (
@@ -50,8 +55,8 @@ export default function Board({ bugs, filter, setFilter, onOpen, onReport }: {
           <select className="th-in th-sel" value={plat} onChange={(e) => setPlat(e.target.value as Platform | "all")} aria-label="Device">
             <option value="all">All devices</option><option value="ios">iPhone</option><option value="android">Android</option>
           </select>
-          <select className="th-in th-sel" value={sort} onChange={(e) => setSort(e.target.value as "new" | "metoo")} aria-label="Sort">
-            <option value="new">Newest first</option><option value="metoo">Most Me too</option>
+          <select className="th-in th-sel" value={sort} onChange={(e) => setSort(e.target.value as "new" | "metoo" | "severe")} aria-label="Sort">
+            <option value="new">Newest first</option><option value="severe">Most severe first</option><option value="metoo">Most Me too</option>
           </select>
           <button type="button" className="th-switch" role="switch" aria-checked={filter.mine} onClick={() => setFilter({ ...filter, mine: !filter.mine })}><i />Only mine</button>
         </div>
