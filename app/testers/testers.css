@@ -458,7 +458,7 @@ select.th-in{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xml
 .th-pb-more{align-self:flex-start;border:0;background:none;padding:0;font-size:13px;font-weight:600;color:var(--acc);cursor:pointer}
 .th-pb-q{margin:0;padding:8px 12px;border-left:2px solid var(--line2);background:var(--sunk);border-radius:0 10px 10px 0;font-size:14px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;display:flex;flex-direction:column;gap:4px}
 .th-pb-q span{font-size:12px;color:var(--dim)}
-.th-pb-lvl .th-list{display:flex;flex-direction:column;gap:10px}
+.th-pb-lvl .th-list{display:flex;flex-direction:column;gap:10px;border:0;background:none;box-shadow:none;overflow:visible}
 .th .th-pb-check .th-ico{stroke:var(--line2)}
 .th .th-pb-check:hover .th-ico{stroke:var(--ok)}
 .th .th-pb-check.on .th-ico{stroke:#fff}
