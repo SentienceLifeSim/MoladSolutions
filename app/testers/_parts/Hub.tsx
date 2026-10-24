@@ -92,6 +92,10 @@ export default function Hub() {
     if (i.bug) { setFocusComment(i.comment); openBug(i.bug); }
     else setTab(i.kind === "build" ? "builds" : "home");
   };
+  const hideBell = (i: BellItem) => {
+    setBell((s) => s && { items: s.items.filter((x) => x.id !== i.id), unread: s.unread });
+    call("bell", { body: { hide: i.id } }).catch(() => {});
+  };
   const readAllBell = () => {
     setBell((s) => s && { items: s.items.map((x) => ({ ...x, unread: false })), unread: 0 });
     call("bell", { body: { all: true } }).catch(() => {});
@@ -167,7 +171,7 @@ export default function Hub() {
       <Assist me={me} bugs={bugs} onDraft={(p) => { setOpen(null); setPrefill(p); setReporting(true); }} onMetoo={metoo} onChanged={refresh} toast={toast} />
       {reporting && <Report bugs={bugs ?? []} prefill={prefill} onClose={() => { setReporting(false); setPrefill(null); }} onOpen={openBug} onMetoo={metoo}
         onDone={async (id) => { setReporting(false); setPrefill(null); toast("Thank you. Your report is on the board."); await refresh(); setOpen(id); }} />}
-      {bellOpen && <BellPanel bell={bell} onPick={pickBell} onReadAll={readAllBell} onClose={() => setBellOpen(false)} />}
+      {bellOpen && <BellPanel bell={bell} onPick={pickBell} onHide={hideBell} onReadAll={readAllBell} onClose={() => setBellOpen(false)} />}
       {current && <Detail bug={current} me={me} focusComment={focusComment} onClose={closeBug} onChange={update} onAnswered={answered} onOpen={openBug} onMetoo={metoo} toast={toast}
         onDeleted={(id) => { setBugs((all) => all?.filter((b) => b.id !== id) ?? all); closeBug(); toast("Deleted"); }} />}
       {me.role === "owner" && bugs && <Welcome bugs={bugs} onOpen={openBug} onPlayers={() => setTab("players")} />}

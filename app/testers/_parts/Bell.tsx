@@ -31,7 +31,7 @@ export function BellButton({ bell, open, onToggle, side }: { bell: BellState | n
 const ICON: Record<BellItem["kind"], string> = { build: "build", focus: "bulb", reply: "chat", fixed: "check", live: "check", tester: "chat" };
 
 /** The list. Tapping an item marks it read and goes there. */
-export function BellPanel({ bell, onPick, onReadAll, onClose }: { bell: BellState | null; onPick: (i: BellItem) => void; onReadAll: () => void; onClose: () => void }) {
+export function BellPanel({ bell, onPick, onHide, onReadAll, onClose }: { bell: BellState | null; onPick: (i: BellItem) => void; onHide: (i: BellItem) => void; onReadAll: () => void; onClose: () => void }) {
   const box = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const k = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -47,7 +47,8 @@ export function BellPanel({ bell, onPick, onReadAll, onClose }: { bell: BellStat
       ) : (
         <div className="th-belllist">
           {bell.items.map((i) => (
-            <button type="button" key={i.id} className={`th-bellit k-${i.kind}${i.unread ? " unread" : ""}`} onClick={() => onPick(i)}>
+            <div key={i.id} className={`th-bellit k-${i.kind}${i.unread ? " unread" : ""}`}>
+            <button type="button" className="go" onClick={() => onPick(i)}>
               <span className="ic">{i.kind === "reply" ? "S" : i.kind === "tester" ? (i.title.trim().charAt(0).toUpperCase() || "?") : <Icon n={ICON[i.kind]} />}</span>
               <span className="t">
                 <b>{i.title}</b>
@@ -55,8 +56,9 @@ export function BellPanel({ bell, onPick, onReadAll, onClose }: { bell: BellStat
                 {i.quote && <q>{i.quote}</q>}
                 <small>{ago(i.at)}</small>
               </span>
-              <span className="u" aria-hidden="true" />
             </button>
+            {i.unread ? <span className="u" aria-hidden="true" /> : <button type="button" className="x" aria-label="Remove" onClick={() => onHide(i)}><Icon n="x" /></button>}
+            </div>
           ))}
         </div>
       )}

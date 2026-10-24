@@ -503,7 +503,11 @@ select.th-in{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xml
 .th-bellpnl header button{border:0;background:none;padding:0;color:var(--acc);font-size:13px;font-weight:600}
 .th-bellnone{margin:0;padding:22px 16px;font-size:14px;color:var(--mut)}
 .th-belllist{overflow-y:auto;-webkit-overflow-scrolling:touch}
-.th-bellit{display:flex;gap:11px;width:100%;padding:13px 16px;border:0;border-bottom:1px solid var(--line);background:none;text-align:left}
+.th-bellit{display:flex;align-items:flex-start;gap:6px;width:100%;padding:13px 12px 13px 16px;border-bottom:1px solid var(--line)}
+.th-bellit .go{flex:1;min-width:0;display:flex;gap:11px;padding:0;border:0;background:none;text-align:left}
+.th-bellit .x{width:28px;height:28px;flex:none;margin-top:3px;border:0;border-radius:50%;background:none;color:var(--dim);display:grid;place-items:center}
+.th-bellit .x:hover{background:var(--sunk);color:var(--tx)}
+.th-bellit .x .th-ico{width:15px;height:15px}
 .th-bellit:last-child{border-bottom:0}
 .th-bellit:hover{background:var(--panel2)}
 .th-bellit.unread{background:var(--acc-soft)}
@@ -517,5 +521,4 @@ select.th-in{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xml
 .th-bellit .t>span{font-size:13px;color:var(--mut);line-height:1.4}
 .th-bellit .t q{quotes:none;font-size:13px;line-height:1.4;padding:7px 9px;border-radius:8px;background:var(--panel2);border:1px solid var(--line)}
 .th-bellit .t small{font-size:11.5px;color:var(--dim)}
-.th-bellit .u{width:8px;height:8px;border-radius:50%;background:var(--acc);flex:none;margin-top:6px;visibility:hidden}
-.th-bellit.unread .u{visibility:visible}
+.th-bellit .u{width:8px;height:8px;border-radius:50%;background:var(--acc);flex:none;margin:6px 10px 0}

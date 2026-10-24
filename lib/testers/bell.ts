@@ -8,7 +8,7 @@ import type { Status } from "./model";
 
 export type BellKind = "build" | "focus" | "reply" | "fixed" | "live" | "tester";
 export type BellItem = { id: string; kind: BellKind; title: string; text: string | null; quote: string | null; at: string; bug: number | null; comment: number | null; unread: boolean };
-type Reads = { clearedAt?: string; read?: string[] };
+type Reads = { clearedAt?: string; read?: string[]; hidden?: string[] };
 
 const KEY = "tester_bell";
 const DAYS = 30, FIRST_VISIT_DAYS = 7, MAX = 30;
@@ -26,12 +26,12 @@ async function loadAll(): Promise<Record<string, Reads>> {
   return v && typeof v === "object" ? v : {};
 }
 
-/** Marks one item read, or everything ("all"). Re-reads first so another tester's marks are kept. */
-export async function markRead(code: string, item: string | "all"): Promise<void> {
+/** Marks one item read, everything read ("all"), or removes a seen item from the list (hide). Re-reads first so other marks are kept. */
+export async function markRead(code: string, item: string | "all", hide = false): Promise<void> {
   const all = await loadAll();
   const mine: Reads = all[code] ?? {};
-  if (item === "all") all[code] = { clearedAt: new Date().toISOString(), read: [] };
-  else all[code] = { ...mine, read: [...new Set([item, ...(mine.read ?? [])])].slice(0, 100) };
+  if (item === "all") all[code] = { ...mine, clearedAt: new Date().toISOString(), read: [] };
+  else all[code] = { ...mine, read: [...new Set([item, ...(mine.read ?? [])])].slice(0, 100), ...(hide ? { hidden: [...new Set([item, ...(mine.hidden ?? [])])].slice(0, 200) } : {}) };
   await rest("desk_settings?on_conflict=key", {
     method: "POST",
     prefer: "resolution=merge-duplicates,return=minimal",
@@ -52,7 +52,8 @@ export async function ownerBell(): Promise<{ items: BellItem[]; unread: number }
   const r = reads.owner ?? {};
   const cleared = Date.parse(r.clearedAt ?? iso(now - FIRST_VISIT_DAYS * day));
   const read = new Set(r.read ?? []);
-  const items = said.filter((c) => title.has(c.bug_id)).map((c) => ({
+  const hidden = new Set(r.hidden ?? []);
+  const items = said.filter((c) => title.has(c.bug_id) && !hidden.has(`t${c.id}`)).map((c) => ({
     id: `t${c.id}`, kind: "tester" as const, title: `${c.name?.trim() || "A tester"} commented on #${c.bug_id} ${title.get(c.bug_id)}`,
     text: null, quote: firstLine(c.body, 140), at: c.created_at, bug: c.bug_id, comment: c.id,
     unread: Date.parse(c.created_at) > cleared && !read.has(`t${c.id}`),
@@ -100,7 +101,7 @@ export async function bellFor(code: string): Promise<{ items: BellItem[]; unread
   const r = reads[code] ?? {};
   // A tester's first visit only flags the last week as new, so they don't open to a wall of old news.
   const cleared = Date.parse(r.clearedAt ?? iso(now - FIRST_VISIT_DAYS * day));
-  const read = new Set(r.read ?? []);
-  const out = items.slice(0, MAX).map((i) => ({ ...i, unread: Date.parse(i.at) > cleared && !read.has(i.id) }));
+  const read = new Set(r.read ?? []), hidden = new Set(r.hidden ?? []);
+  const out = items.filter((i) => !hidden.has(i.id)).slice(0, MAX).map((i) => ({ ...i, unread: Date.parse(i.at) > cleared && !read.has(i.id) }));
   return { items: out, unread: out.filter((i) => i.unread).length };
 }
