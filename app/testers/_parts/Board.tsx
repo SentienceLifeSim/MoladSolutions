@@ -13,9 +13,9 @@ const sevRank = (b: Bug) => (b.kind === "bug" ? SEVERITIES.indexOf(b.severity) :
 export default function Board({ bugs, filter, setFilter, onOpen, onReport }: {
   bugs: Bug[] | null; filter: BoardFilter; setFilter: (f: BoardFilter) => void; onOpen: (id: number) => void; onReport: () => void;
 }) {
-  const [q, setQ] = useState(""), [plat, setPlat] = useState<Platform | "all">("all"), [sort, setSort] = useState<"new" | "metoo" | "severe">("new"), [kind, setKind] = useState<Kind | "all">("all");
+  const [q, setQ] = useState(""), [plat, setPlat] = useState<Platform | "all">("all"), [sort, setSort] = useState<"new" | "metoo" | "severe">("new"), [kind, setKind] = useState<Kind | "all" | "work">("all"); // owner Oct 24: every report by default, check-ins too, so nothing is missed
   const all = bugs ?? [];
-  const base = all.filter((b) => (plat === "all" || b.platform === plat) && (!filter.mine || b.mine) && (kind === "all" ? b.kind !== "clear" : b.kind === kind));
+  const base = all.filter((b) => (plat === "all" || b.platform === plat) && (!filter.mine || b.mine) && (kind === "all" || (kind === "work" ? b.kind !== "clear" : b.kind === kind)));
   const shown = useMemo(() => {
     const qs = words(q), num = /^#?(\d+)$/.exec(q.trim());
     let r = base.filter((b) => inGroup(b, filter.g));
@@ -49,8 +49,8 @@ export default function Board({ bugs, filter, setFilter, onOpen, onReport }: {
         </nav>
         <div className="th-toolbar">
           <label className="th-search"><Icon n="search" /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search, or #12" type="search" aria-label="Search reports" /></label>
-          <select className="th-in th-sel" value={kind} onChange={(e) => setKind(e.target.value as Kind | "all")} aria-label="Type">
-            <option value="all">Bugs and improvements</option><option value="bug">Bugs only</option><option value="idea">Improvements only</option><option value="clear">{KIND_LABEL.clear}</option>
+          <select className="th-in th-sel" value={kind} onChange={(e) => setKind(e.target.value as Kind | "all" | "work")} aria-label="Type">
+            <option value="all">All reports</option><option value="work">Bugs and improvements</option><option value="bug">Bugs only</option><option value="idea">Improvements only</option><option value="clear">{KIND_LABEL.clear}</option>
           </select>
           <select className="th-in th-sel" value={plat} onChange={(e) => setPlat(e.target.value as Platform | "all")} aria-label="Device">
             <option value="all">All devices</option><option value="ios">iPhone</option><option value="android">Android</option>
