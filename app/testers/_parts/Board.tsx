@@ -1,12 +1,16 @@
 "use client";
 import { useMemo, useState } from "react";
-import { KIND_LABEL, SEVERITIES, type Bug, type Kind, type Platform } from "@/lib/testers/model";
+import { KIND_LABEL, SEVERITIES, type Bug, type Kind, type Platform, type Status } from "@/lib/testers/model";
 import { words } from "./api";
 import { GROUPS, inGroup, type GroupKey } from "./groups";
 import { Icon } from "./ui";
 import BugRow from "./BugRow";
 
 export type BoardFilter = { g: GroupKey; mine: boolean };
+
+// Owner Oct 29: anything already live, verified or closed sits at the bottom, whatever the sort.
+const DONE = new Set<Status>(["live", "verified", "cant", "wont", "dup"]);
+const done = (b: Bug) => (DONE.has(b.status) ? 1 : 0);
 
 const sevRank = (b: Bug) => (b.kind === "bug" ? SEVERITIES.indexOf(b.severity) : SEVERITIES.length + (b.kind === "idea" ? 0 : 1));
 
@@ -26,10 +30,10 @@ export default function Board({ bugs, filter, setFilter, onOpen, onReport }: {
         return qs.every((w) => hay.includes(w));
       });
     }
-    if (sort === "metoo") return [...r].sort((a, b) => b.metoo - a.metoo || b.id - a.id);
+    if (sort === "metoo") return [...r].sort((a, b) => done(a) - done(b) || b.metoo - a.metoo || b.id - a.id);
     // Most severe first: the tester's own severity, Game breaking down to Cosmetic; improvements and check-ins after bugs.
-    if (sort === "severe") return [...r].sort((a, b) => sevRank(a) - sevRank(b) || b.id - a.id);
-    return r;
+    if (sort === "severe") return [...r].sort((a, b) => done(a) - done(b) || sevRank(a) - sevRank(b) || b.id - a.id);
+    return [...r].sort((a, b) => done(a) - done(b)); // stable: newest first inside each band
   }, [base, filter.g, q, sort]);
 
   return (
